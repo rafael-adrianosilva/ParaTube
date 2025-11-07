@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ParaTube - Página Inicial</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="index-page">
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <button class="menu-btn" id="menuBtn">
+                <i class="fas fa-bars"></i>
+            </button>
+            <a href="index.html" class="logo">
+                <i class="fas fa-play-circle"></i>
+                <span>ParaTube</span>
+            </a>
+        </div>
+        
+        <div class="header-center">
+            <form class="search-form" id="searchForm">
+                <input type="text" placeholder="Pesquisar" id="searchInput">
+                <button type="submit" class="search-btn">
+                    <i class="fas fa-search"></i>
+                </button>
+            </form>
+        </div>
+        
+        <div class="header-right">
+            <button class="theme-toggle" id="themeToggle" title="Aparência">
+                <i class="fas fa-moon"></i>
+            </button>
+            <button class="upload-btn" id="uploadBtn" title="Criar vídeo">
+                <i class="fas fa-video"></i>
+            </button>
+            <button class="notifications-btn" id="notificationsBtn" title="Notificações">
+                <i class="fas fa-bell"></i>
+                <span class="notification-badge" id="notificationBadge" style="display: none;">0</span>
+            </button>
+            <div class="user-menu" id="userMenu">
+                <button class="user-avatar" id="userAvatar" title="Conta">
+                    <i class="fas fa-user-circle"></i>
+                </button>
+                <div class="dropdown-menu" id="dropdownMenu">
+                    <a href="login.html" class="login-link">
+                        <i class="fas fa-sign-in-alt"></i> Fazer Login
+                    </a>
+                    <a href="register.html">
+                        <i class="fas fa-user-plus"></i> Cadastrar
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <nav class="sidebar-nav">
+            <a href="index.html" class="nav-item active">
+                <i class="fas fa-home"></i>
+                <span>Início</span>
+            </a>
+            <a href="trending.html" class="nav-item">
+                <i class="fas fa-fire"></i>
+                <span>Em alta</span>
+            </a>
+            <a href="subscriptions.html" class="nav-item">
+                <i class="fas fa-play-circle"></i>
+                <span>Inscrições</span>
+            </a>
+            <hr>
+            <a href="my-channel.html" class="nav-item" id="myChannelLink" style="display: none;">
+                <i class="fas fa-user"></i>
+                <span>Seu canal</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-history"></i>
+                <span>Histórico</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-folder"></i>
+                <span>Biblioteca</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-clock"></i>
+                <span>Assistir mais tarde</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-thumbs-up"></i>
+                <span>Vídeos curtidos</span>
+            </a>
+            <hr>
+            <div class="sidebar-section" id="subscriptionsSection">
+                <h3>Inscrições</h3>
+                <div id="subscriptionsList"></div>
+            </div>
+            <hr>
+            <div class="sidebar-section">
+                <h3>Categorias</h3>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-music"></i>
+                    <span>Música</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-gamepad"></i>
+                    <span>Jogos</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-newspaper"></i>
+                    <span>Notícias</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-trophy"></i>
+                    <span>Esportes</span>
+                </a>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content" id="mainContent">
+        <!-- Filter Chips -->
+        <div class="filter-chips">
+            <button class="chip active">Todos</button>
+            <button class="chip">Música</button>
+            <button class="chip">Jogos</button>
+            <button class="chip">Notícias</button>
+            <button class="chip">Esportes</button>
+            <button class="chip">Educação</button>
+            <button class="chip">Tecnologia</button>
+            <button class="chip">Culinária</button>
+        </div>
+
+        <!-- Videos Grid -->
+        <div class="videos-grid" id="videosGrid">
+            <!-- Card de teste estático -->
+            <a href="#" class="video-card" style="display: none;" id="testCard">
+                <div class="video-thumbnail">
+                    <img src="https://via.placeholder.com/320x180/667eea/ffffff?text=TESTE" alt="Test">
+                    <span class="video-duration">3:00</span>
+                </div>
+                <div class="video-details">
+                    <div class="channel-avatar">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <div class="video-meta">
+                        <h3>TESTE - Avatar deve aparecer aqui ao lado</h3>
+                        <div class="channel-name">Canal de Teste</div>
+                        <div class="video-stats">100 visualizações • há 1 hora</div>
+                    </div>
+                </div>
+            </a>
+            <!-- Videos will be loaded dynamically -->
+        </div>
+    </main>
+
+    <!-- Upload Modal -->
+    <div class="modal" id="uploadModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Fazer Upload de Vídeo</h2>
+                <button class="close-btn" id="closeModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="uploadForm" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="videoFile">Selecione o vídeo</label>
+                    <input type="file" id="videoFile" name="video" accept="video/*" required>
+                </div>
+                <div class="form-group">
+                    <label for="thumbnailFile">Thumbnail (opcional)</label>
+                    <input type="file" id="thumbnailFile" name="thumbnail" accept="image/*">
+                    <div class="thumbnail-preview" id="thumbnailPreview" style="display: none;">
+                        <img id="thumbnailImg" src="" alt="Thumbnail preview">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="videoTitle">Título</label>
+                    <input type="text" id="videoTitle" name="title" required>
+                </div>
+                <div class="form-group">
+                    <label for="videoDescription">Descrição</label>
+                    <textarea id="videoDescription" name="description" rows="4"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="videoCategory">Categoria</label>
+                    <select id="videoCategory" name="category">
+                        <option value="music">Música</option>
+                        <option value="games">Jogos</option>
+                        <option value="news">Notícias</option>
+                        <option value="sports">Esportes</option>
+                        <option value="education">Educação</option>
+                        <option value="tech">Tecnologia</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-cancel" id="cancelUpload">Cancelar</button>
+                    <button type="submit" class="btn-submit">Publicar</button>
+                </div>
+                <div class="upload-progress" id="uploadProgress" style="display: none;">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <span class="progress-text" id="progressText">0%</span>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        // Debug: Mostrar card de teste e verificar avatar
+        setTimeout(() => {
+            const testCard = document.getElementById('testCard');
+            if (testCard) {
+                testCard.style.display = 'block';
+                console.log('🧪 TESTE: Card de teste mostrado');
+                
+                const avatar = testCard.querySelector('.channel-avatar');
+                const icon = testCard.querySelector('.channel-avatar i');
+                
+                console.log('🧪 Avatar element:', avatar);
+                console.log('🧪 Avatar computed style:', avatar ? window.getComputedStyle(avatar) : 'não encontrado');
+                console.log('🧪 Icon element:', icon);
+                console.log('🧪 Icon font-size:', icon ? window.getComputedStyle(icon).fontSize : 'não encontrado');
+                console.log('🧪 Icon color:', icon ? window.getComputedStyle(icon).color : 'não encontrado');
+                console.log('🧪 Icon display:', icon ? window.getComputedStyle(icon).display : 'não encontrado');
+            }
+        }, 1000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canal - ParaTube</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body class="channel-page">
+    <!-- Header -->
+    <header>
+        <div class="header-left">
+            <button class="menu-btn" id="menuBtn">
+                <i class="fas fa-bars"></i>
+            </button>
+            <a href="index.html" class="logo">
+                <i class="fas fa-play-circle"></i>
+                <span>ParaTube</span>
+            </a>
+        </div>
+        <div class="header-center">
+            <div class="search-bar">
+                <input type="text" placeholder="Pesquisar" id="searchInput">
+                <button class="search-btn" id="searchBtn">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+        </div>
+        <div class="header-right">
+            <button class="icon-btn" id="themeToggle">
+                <i class="fas fa-moon"></i>
+            </button>
+            <button class="icon-btn" id="notificationsBtn">
+                <i class="fas fa-bell"></i>
+                <span class="notification-badge" id="notificationBadge" style="display: none;">0</span>
+            </button>
+            <div class="user-menu" id="userMenu">
+                <img src="https://via.placeholder.com/40" alt="User" class="user-avatar" id="userAvatar">
+            </div>
+        </div>
+    </header>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <nav>
+            <a href="index.html" class="nav-item">
+                <i class="fas fa-home"></i>
+                <span>Início</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-fire"></i>
+                <span>Em alta</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-subscript"></i>
+                <span>Inscrições</span>
+            </a>
+            <hr>
+            <a href="#" class="nav-item">
+                <i class="fas fa-book"></i>
+                <span>Biblioteca</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-history"></i>
+                <span>Histórico</span>
+            </a>
+            <a href="my-channel.html" class="nav-item">
+                <i class="fas fa-user"></i>
+                <span>Seu canal</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Channel Header YouTube Style -->
+        <div class="channel-header youtube-style">
+            <!-- Channel Banner -->
+            <div class="channel-banner" id="channelBanner">
+                <!-- Banner image will be set as background -->
+            </div>
+
+            <!-- Channel Info -->
+            <div class="channel-info-section">
+                <div class="channel-avatar-container">
+                    <img src="https://via.placeholder.com/160" alt="Channel Avatar" class="channel-avatar-large" id="channelAvatar">
+                </div>
+                
+                <div class="channel-details-yt">
+                    <h1 class="channel-name-yt" id="channelName">Nome do Canal</h1>
+                    <div class="channel-meta">
+                        <span class="channel-handle" id="channelHandle">@handle</span>
+                        <span class="meta-separator">•</span>
+                        <span id="subscriberCount">0 inscritos</span>
+                        <span class="meta-separator">•</span>
+                        <span id="videoCount">0 vídeos</span>
+                    </div>
+                    <p class="channel-description-preview" id="channelDescriptionPreview"></p>
+                    
+                    <!-- Subscribe Button -->
+                    <button class="subscribe-btn" id="subscribeBtn">
+                        <i class="fas fa-bell"></i>
+                        <span>Inscrever-se</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Channel Navigation Tabs -->
+            <div class="channel-tabs">
+                <button class="channel-tab active" data-tab="inicio">Início</button>
+                <button class="channel-tab" data-tab="videos">Vídeos</button>
+                <button class="channel-tab" data-tab="shorts">Shorts</button>
+                <button class="channel-tab" data-tab="sobre">Sobre</button>
+            </div>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="tab-content-yt">
+            <!-- Início Tab -->
+            <div class="tab-pane active" id="inicio-content">
+                <!-- Shorts Section -->
+                <div class="shorts-section-yt" id="shortsSection" style="display: none;">
+                    <div class="section-header-yt">
+                        <h2>Shorts</h2>
+                    </div>
+                    <div class="shorts-grid-yt" id="shortsGrid">
+                        <!-- Shorts will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Videos Section -->
+                <div class="videos-section-yt" id="videosSection" style="display: none;">
+                    <div class="section-header-yt">
+                        <h2>Vídeos</h2>
+                        <a href="#" class="play-all-btn" id="playAllBtn">
+                            <i class="fas fa-play"></i>
+                            Reproduzir tudo
+                        </a>
+                    </div>
+                    <div class="videos-horizontal-scroll" id="videosScroll">
+                        <!-- Videos will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vídeos Tab -->
+            <div class="tab-pane" id="videos-content">
+                <div class="filter-bar-yt">
+                    <button class="filter-btn-yt active" data-filter="recent">Mais recentes</button>
+                    <button class="filter-btn-yt" data-filter="popular">Mais populares</button>
+                    <button class="filter-btn-yt" data-filter="oldest">Mais antigos</button>
+                </div>
+                <div class="videos-grid-yt" id="allVideosGrid">
+                    <!-- All videos will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Shorts Tab -->
+            <div class="tab-pane" id="shorts-content">
+                <div class="shorts-grid-yt" id="allShortsGrid">
+                    <!-- All shorts will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Sobre Tab -->
+            <div class="tab-pane" id="sobre-content">
+                <div class="about-section-yt">
+                    <div class="about-box">
+                        <h3>Descrição</h3>
+                        <p id="channelDescriptionFull">Nenhuma descrição disponível.</p>
+                    </div>
+                    
+                    <div class="about-box">
+                        <h3>Estatísticas</h3>
+                        <p><i class="fas fa-users"></i> <span id="subscribersAbout">0 inscritos</span></p>
+                        <p><i class="fas fa-video"></i> <span id="videosAbout">0 vídeos</span></p>
+                        <p><i class="fas fa-eye"></i> <span id="totalViewsAbout">0 visualizações</span></p>
+                        <p><i class="fas fa-calendar"></i> Entrou em <span id="joinedDate">--</span></p>
+                    </div>
+
+                    <div class="about-box" id="linksBox" style="display: none;">
+                        <h3>Links</h3>
+                        <div id="channelLinks">
+                            <!-- Links will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/auth.js"></script>
+    <script src="js/channel.js"></script>
+</body>
+</html>

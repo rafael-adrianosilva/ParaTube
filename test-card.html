@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Video Card</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            padding: 40px;
+            background: var(--bg-primary);
+        }
+        .test-container {
+            max-width: 360px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h2>Card de Vídeo - Teste</h2>
+        
+        <a href="#" class="video-card">
+            <div class="video-thumbnail">
+                <img src="https://via.placeholder.com/320x180/667eea/ffffff?text=Video" alt="Test Video">
+                <span class="video-duration">3:45</span>
+            </div>
+            <div class="video-details">
+                <div class="channel-avatar">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                <div class="video-meta">
+                    <h3>King Bowser 0-BIT vs 1-BIT vs 2-BIT vs 4-BIT vs 8-BIT vs 16-BIT vs 32-BIT vs 64-BIT vs 3D...</h3>
+                    <div class="channel-name">Retromantra</div>
+                    <div class="video-stats">1,8 mi de visualizações • há 1 ano</div>
+                </div>
+            </div>
+        </a>
+        
+        <hr style="margin: 40px 0;">
+        
+        <h2>Estrutura HTML do Card:</h2>
+        <pre style="background: #f0f0f0; padding: 20px; overflow-x: auto; font-size: 12px;">
+&lt;a href="watch.html?v=1" class="video-card"&gt;
+    &lt;div class="video-thumbnail"&gt;
+        &lt;img src="thumbnail.jpg" alt="Video"&gt;
+        &lt;span class="video-duration"&gt;3:45&lt;/span&gt;
+    &lt;/div&gt;
+    &lt;div class="video-details"&gt;
+        &lt;div class="channel-avatar"&gt;
+            &lt;i class="fas fa-user-circle"&gt;&lt;/i&gt;
+        &lt;/div&gt;
+        &lt;div class="video-meta"&gt;
+            &lt;h3&gt;Título do Vídeo&lt;/h3&gt;
+            &lt;div class="channel-name"&gt;Nome do Canal&lt;/div&gt;
+            &lt;div class="video-stats"&gt;Views • Data&lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/a&gt;
+        </pre>
+    </div>
+    
+    <script>
+        console.log('Card de teste carregado');
+        console.log('Avatar element:', document.querySelector('.channel-avatar'));
+        console.log('Avatar icon:', document.querySelector('.channel-avatar i'));
+    </script>
+</body>
+</html>

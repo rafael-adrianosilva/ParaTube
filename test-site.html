@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste do Site - ParaTube</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-item {
+            padding: 10px;
+            margin: 5px 0;
+            border-left: 3px solid #ddd;
+            padding-left: 15px;
+        }
+        .test-item.success {
+            border-color: #4CAF50;
+            background: #f1f8f4;
+        }
+        .test-item.error {
+            border-color: #f44336;
+            background: #fef1f0;
+        }
+        .test-item.warning {
+            border-color: #ff9800;
+            background: #fff8f0;
+        }
+        button {
+            background: #1976d2;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #1565c0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Teste Completo do ParaTube</h1>
+    
+    <div class="test-section">
+        <h2>Páginas Disponíveis</h2>
+        <button onclick="window.open('index.html', '_blank')">📱 Index (Home)</button>
+        <button onclick="window.open('trending.html', '_blank')">🔥 Em Alta</button>
+        <button onclick="window.open('subscriptions.html', '_blank')">📺 Inscrições</button>
+        <button onclick="window.open('my-channel.html', '_blank')">👤 Meu Canal</button>
+        <button onclick="window.open('profile.html', '_blank')">⚙️ Perfil</button>
+        <button onclick="window.open('watch.html?v=1', '_blank')">▶️ Watch</button>
+        <button onclick="window.open('login.html', '_blank')">🔐 Login</button>
+        <button onclick="window.open('register.html', '_blank')">📝 Registro</button>
+    </div>
+
+    <div class="test-section">
+        <h2>Testes Automáticos</h2>
+        <button onclick="runTests()">▶️ Executar Todos os Testes</button>
+        <div id="testResults"></div>
+    </div>
+
+    <script>
+        async function runTests() {
+            const resultsDiv = document.getElementById('testResults');
+            resultsDiv.innerHTML = '<p>Executando testes...</p>';
+            
+            const tests = [];
+            
+            // Teste 1: Verificar se todas as páginas existem
+            tests.push(await testPage('index.html', 'Página Index'));
+            tests.push(await testPage('trending.html', 'Página Em Alta'));
+            tests.push(await testPage('subscriptions.html', 'Página Inscrições'));
+            tests.push(await testPage('my-channel.html', 'Página Meu Canal'));
+            tests.push(await testPage('profile.html', 'Página Perfil'));
+            tests.push(await testPage('watch.html', 'Página Watch'));
+            tests.push(await testPage('login.html', 'Página Login'));
+            tests.push(await testPage('register.html', 'Página Registro'));
+            
+            // Teste 2: Verificar arquivos JavaScript
+            tests.push(await testFile('js/main.js', 'JavaScript Main'));
+            tests.push(await testFile('js/auth.js', 'JavaScript Auth'));
+            tests.push(await testFile('js/trending.js', 'JavaScript Trending'));
+            tests.push(await testFile('js/watch.js', 'JavaScript Watch'));
+            tests.push(await testFile('js/my-channel.js', 'JavaScript My Channel'));
+            
+            // Teste 3: Verificar CSS
+            tests.push(await testFile('css/style.css', 'CSS Principal'));
+            
+            // Teste 4: Verificar PHP
+            tests.push(await testPHP('php/get-videos.php', 'PHP Get Videos'));
+            tests.push(await testPHP('php/get-trending.php', 'PHP Get Trending'));
+            tests.push(await testPHP('php/get-profile.php', 'PHP Get Profile'));
+            
+            displayResults(tests);
+        }
+        
+        async function testPage(url, name) {
+            try {
+                const response = await fetch(url);
+                if (response.ok) {
+                    const text = await response.text();
+                    const hasCSS = text.includes('style.css');
+                    const hasJS = text.includes('.js');
+                    
+                    return {
+                        name,
+                        status: 'success',
+                        message: `✅ OK (${hasCSS ? 'CSS ✓' : 'CSS ✗'}, ${hasJS ? 'JS ✓' : 'JS ✗'})`
+                    };
+                } else {
+                    return {
+                        name,
+                        status: 'error',
+                        message: `❌ Erro ${response.status}`
+                    };
+                }
+            } catch (e) {
+                return {
+                    name,
+                    status: 'error',
+                    message: `❌ Erro: ${e.message}`
+                };
+            }
+        }
+        
+        async function testFile(url, name) {
+            try {
+                const response = await fetch(url);
+                if (response.ok) {
+                    const size = response.headers.get('content-length');
+                    return {
+                        name,
+                        status: 'success',
+                        message: `✅ OK (${(size/1024).toFixed(2)} KB)`
+                    };
+                } else {
+                    return {
+                        name,
+                        status: 'error',
+                        message: `❌ Não encontrado`
+                    };
+                }
+            } catch (e) {
+                return {
+                    name,
+                    status: 'error',
+                    message: `❌ Erro: ${e.message}`
+                };
+            }
+        }
+        
+        async function testPHP(url, name) {
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (data.success !== undefined) {
+                    return {
+                        name,
+                        status: 'success',
+                        message: `✅ Responde JSON corretamente`
+                    };
+                } else {
+                    return {
+                        name,
+                        status: 'warning',
+                        message: `⚠️ Responde mas formato inesperado`
+                    };
+                }
+            } catch (e) {
+                return {
+                    name,
+                    status: 'warning',
+                    message: `⚠️ Requer autenticação ou parâmetros`
+                };
+            }
+        }
+        
+        function displayResults(tests) {
+            const resultsDiv = document.getElementById('testResults');
+            let html = '<h3>Resultados:</h3>';
+            
+            const success = tests.filter(t => t.status === 'success').length;
+            const errors = tests.filter(t => t.status === 'error').length;
+            const warnings = tests.filter(t => t.status === 'warning').length;
+            
+            html += `<p><strong>Total:</strong> ${tests.length} testes | ✅ ${success} | ❌ ${errors} | ⚠️ ${warnings}</p>`;
+            
+            tests.forEach(test => {
+                html += `<div class="test-item ${test.status}">
+                    <strong>${test.name}:</strong> ${test.message}
+                </div>`;
+            });
+            
+            resultsDiv.innerHTML = html;
+        }
+    </script>
+</body>
+</html>
