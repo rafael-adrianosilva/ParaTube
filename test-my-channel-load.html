@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - My Channel Load</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-box {
+            background: white;
+            padding: 20px;
+            margin: 10px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        pre {
+            background: #f0f0f0;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        .success { color: green; }
+        .error { color: red; }
+        button {
+            background: #ff0000;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #cc0000;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test - My Channel Load</h1>
+    
+    <div class="test-box">
+        <h2>1. LocalStorage User</h2>
+        <button onclick="testLocalStorage()">Test LocalStorage</button>
+        <pre id="localStorageResult">Click button to test...</pre>
+    </div>
+
+    <div class="test-box">
+        <h2>2. Load Videos API</h2>
+        <button onclick="testLoadVideos()">Test Load Videos</button>
+        <pre id="videosResult">Click button to test...</pre>
+    </div>
+
+    <div class="test-box">
+        <h2>3. Load Channel Customization</h2>
+        <button onclick="testChannelCustomization()">Test Customization</button>
+        <pre id="customizationResult">Click button to test...</pre>
+    </div>
+
+    <div class="test-box">
+        <h2>4. Parse Duration Test</h2>
+        <button onclick="testParseDuration()">Test Parse Duration</button>
+        <pre id="durationResult">Click button to test...</pre>
+    </div>
+
+    <script>
+        function testLocalStorage() {
+            const result = document.getElementById('localStorageResult');
+            const user = localStorage.getItem('user');
+            
+            if (!user) {
+                result.innerHTML = '<span class="error">❌ No user in localStorage!</span>';
+                return;
+            }
+            
+            try {
+                const userData = JSON.parse(user);
+                result.innerHTML = `<span class="success">✅ User found:</span>\n${JSON.stringify(userData, null, 2)}`;
+            } catch (e) {
+                result.innerHTML = `<span class="error">❌ Error parsing user data: ${e.message}</span>`;
+            }
+        }
+
+        async function testLoadVideos() {
+            const result = document.getElementById('videosResult');
+            result.innerHTML = 'Loading...';
+            
+            const user = localStorage.getItem('user');
+            if (!user) {
+                result.innerHTML = '<span class="error">❌ No user in localStorage!</span>';
+                return;
+            }
+            
+            const userData = JSON.parse(user);
+            
+            try {
+                const response = await fetch('php/get-user-videos.php', {
+                    headers: { 'X-User-Id': userData.id.toString() }
+                });
+                
+                result.innerHTML = `<span class="success">✅ HTTP Status: ${response.status}</span>\n`;
+                
+                if (!response.ok) {
+                    result.innerHTML += `<span class="error">❌ Response not OK</span>`;
+                    return;
+                }
+                
+                const videos = await response.json();
+                result.innerHTML += `\n<span class="success">✅ Videos received:</span>\n${JSON.stringify(videos, null, 2)}`;
+                
+                // Test if array
+                if (Array.isArray(videos)) {
+                    result.innerHTML += `\n\n<span class="success">✅ Is array with ${videos.length} videos</span>`;
+                    
+                    // List video titles
+                    if (videos.length > 0) {
+                        result.innerHTML += `\n\nVideo titles:`;
+                        videos.forEach((v, i) => {
+                            result.innerHTML += `\n  ${i + 1}. "${v.title}" (ID: ${v.id}, Duration: ${v.duration})`;
+                        });
+                    }
+                } else {
+                    result.innerHTML += `\n\n<span class="error">❌ Not an array!</span>`;
+                }
+                
+            } catch (error) {
+                result.innerHTML += `\n<span class="error">❌ Error: ${error.message}</span>`;
+            }
+        }
+
+        async function testChannelCustomization() {
+            const result = document.getElementById('customizationResult');
+            result.innerHTML = 'Loading...';
+            
+            const user = localStorage.getItem('user');
+            if (!user) {
+                result.innerHTML = '<span class="error">❌ No user in localStorage!</span>';
+                return;
+            }
+            
+            const userData = JSON.parse(user);
+            
+            try {
+                const response = await fetch('php/get-channel-customization.php', {
+                    headers: { 'X-User-Id': userData.id.toString() }
+                });
+                
+                result.innerHTML = `<span class="success">✅ HTTP Status: ${response.status}</span>\n`;
+                
+                if (!response.ok) {
+                    result.innerHTML += `<span class="error">❌ Response not OK</span>`;
+                    return;
+                }
+                
+                const data = await response.json();
+                result.innerHTML += `\n<span class="success">✅ Data received:</span>\n${JSON.stringify(data, null, 2)}`;
+                
+                if (data.success && data.banner) {
+                    result.innerHTML += `\n\n<span class="success">✅ Has banner: ${data.banner}</span>`;
+                } else {
+                    result.innerHTML += `\n\n<span class="error">⚠️ No banner found</span>`;
+                }
+                
+            } catch (error) {
+                result.innerHTML += `\n<span class="error">❌ Error: ${error.message}</span>`;
+            }
+        }
+
+        function testParseDuration() {
+            const result = document.getElementById('durationResult');
+            
+            function parseDuration(duration) {
+                if (!duration) return 0;
+                const parts = duration.split(':').map(Number);
+                if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
+                if (parts.length === 2) return parts[0] * 60 + parts[1];
+                return 0;
+            }
+            
+            const tests = [
+                { input: '0:45', expected: 45, isShort: true },
+                { input: '1:30', expected: 90, isShort: false },
+                { input: '00:45', expected: 45, isShort: true },
+                { input: '01:30', expected: 90, isShort: false },
+                { input: '1:05:30', expected: 3930, isShort: false },
+            ];
+            
+            result.innerHTML = '<span class="success">✅ Duration Parser Tests:</span>\n';
+            
+            tests.forEach(test => {
+                const seconds = parseDuration(test.input);
+                const isShort = seconds < 60;
+                const pass = seconds === test.expected && isShort === test.isShort;
+                const icon = pass ? '✅' : '❌';
+                result.innerHTML += `\n${icon} "${test.input}" → ${seconds}s (${isShort ? 'Short' : 'Video'}) - Expected: ${test.expected}s`;
+            });
+        }
+
+        // Auto-run localStorage test
+        window.addEventListener('DOMContentLoaded', () => {
+            testLocalStorage();
+        });
+    </script>
+</body>
+</html>

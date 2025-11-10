@@ -12,6 +12,10 @@ ADD COLUMN IF NOT EXISTS bio TEXT DEFAULT NULL;
 ALTER TABLE videos 
 ADD COLUMN IF NOT EXISTS thumbnail VARCHAR(255) DEFAULT NULL;
 
+-- Adicionar campo is_pinned para vídeo fixado
+ALTER TABLE videos 
+ADD COLUMN IF NOT EXISTS is_pinned TINYINT(1) DEFAULT 0;
+
 -- Atualizar dados de exemplo com timestamps mais recentes
 UPDATE videos SET created_at = DATE_SUB(NOW(), INTERVAL 2 DAY) WHERE id = 1;
 UPDATE videos SET created_at = DATE_SUB(NOW(), INTERVAL 5 DAY) WHERE id = 2;

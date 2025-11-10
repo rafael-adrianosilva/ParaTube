@@ -22,6 +22,8 @@ if (!$channel_id) {
 
 require_once 'config.php';
 
+$conn = getDBConnection();
+
 try {
     // Check if user is subscribed to this channel
     $stmt = $conn->prepare("SELECT id FROM subscriptions WHERE user_id = ? AND channel_id = ?");

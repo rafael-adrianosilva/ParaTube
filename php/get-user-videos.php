@@ -7,6 +7,8 @@ header('Access-Control-Allow-Headers: Content-Type, X-User-Id');
 session_start();
 require_once 'config.php';
 
+$conn = getDBConnection();
+
 // Get user ID from session or header
 $userId = null;
 if (isset($_SESSION['user_id'])) {
@@ -20,12 +22,33 @@ if (isset($_SESSION['user_id'])) {
 if (!$userId) {
     echo json_encode([
         'success' => false,
-        'message' => 'Usuário não autenticado'
+        'message' => 'Usuário não autenticado',
+        'debug' => [
+            'session' => isset($_SESSION['user_id']),
+            'header' => isset($_SERVER['HTTP_X_USER_ID']),
+            'get' => isset($_GET['userId'])
+        ]
     ]);
     exit;
 }
 
 try {
+    // First check if user exists
+    $checkStmt = $conn->prepare("SELECT id, username FROM users WHERE id = ?");
+    $checkStmt->bind_param("i", $userId);
+    $checkStmt->execute();
+    $checkResult = $checkStmt->get_result();
+    
+    if ($checkResult->num_rows === 0) {
+        echo json_encode([
+            'success' => false,
+            'message' => 'Usuário não encontrado',
+            'userId' => $userId
+        ]);
+        exit;
+    }
+    $checkStmt->close();
+    
     // Get user videos
     $stmt = $conn->prepare("
         SELECT 
@@ -62,27 +85,44 @@ try {
             'title' => $row['title'],
             'description' => $row['description'],
             'thumbnail' => $row['thumbnail'],
-            'video_url' => $row['video_url'],
-            'views' => $row['views'],
-            'likes' => $row['likes'],
-            'dislikes' => $row['dislikes'],
+            'videoUrl' => $row['video_url'] ?? '',
+            'views' => intval($row['views']),
+            'likes' => intval($row['likes']),
+            'dislikes' => intval($row['dislikes']),
             'duration' => $formattedDuration,
-            'visibility' => $row['visibility'],
+            'visibility' => $row['visibility'] ?? 'public',
             'created_at' => $row['created_at'],
             'username' => $row['username'],
             'profile_image' => $row['profile_image'],
-            'comment_count' => $row['comment_count']
+            'comment_count' => intval($row['comment_count'])
         ];
     }
     
-    // Return videos array directly
-    echo json_encode($videos);
+    // If no videos found, return empty array with debug info in development
+    if (count($videos) === 0) {
+        // Check if there are ANY videos in the database for debugging
+        $debugStmt = $conn->prepare("SELECT COUNT(*) as total FROM videos WHERE user_id = ?");
+        $debugStmt->bind_param("i", $userId);
+        $debugStmt->execute();
+        $debugResult = $debugStmt->get_result();
+        $debugData = $debugResult->fetch_assoc();
+        $debugStmt->close();
+        
+        // Return empty array (expected format)
+        echo json_encode($videos);
+    } else {
+        // Return videos array
+        echo json_encode($videos);
+    }
     
     $stmt->close();
     
 } catch (Exception $e) {
-    http_response_code(500);
-    echo json_encode([]);
+    echo json_encode([
+        'success' => false,
+        'message' => 'Erro ao buscar vídeos: ' . $e->getMessage(),
+        'trace' => $e->getTraceAsString()
+    ]);
 }
 
 $conn->close();

@@ -377,6 +377,24 @@ body {
     display: none !important;
 }
 
+/* Sidebar closed state - forces sidebar to hide */
+.sidebar.closed {
+    transform: translateX(-100%) !important;
+    visibility: hidden;
+}
+
+.sidebar.closed ~ .main-content,
+.main-content.full-width {
+    margin-left: 0 !important;
+}
+
+/* Override for desktop when sidebar is closed */
+@media (min-width: 769px) {
+    .sidebar.closed {
+        transform: translateX(-240px) !important;
+    }
+}
+
 /* ===== MAIN CONTENT ===== */
 .main-content {
     margin-top: var(--header-height);
@@ -717,14 +735,10 @@ body {
     display: flex;
     gap: 24px;
     margin-top: var(--header-height);
-    margin-left: var(--sidebar-width);
     padding: 24px;
     max-width: 1800px;
-    transition: margin-left 0.3s;
-}
-
-.watch-container.sidebar-open {
-    margin-left: var(--sidebar-width);
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .watch-main {
@@ -2049,7 +2063,13 @@ body {
 .customize-container {
     max-width: 1000px;
     margin: 80px auto 40px;
+    margin-left: 280px;
     padding: 0 24px;
+    transition: margin-left 0.3s ease;
+}
+
+.sidebar.closed ~ .customize-container {
+    margin-left: 80px;
 }
 
 .customize-header {
@@ -2421,6 +2441,12 @@ body {
 
 /* Responsive */
 @media (max-width: 768px) {
+    .customize-container {
+        margin-left: 0 !important;
+        margin-top: 60px;
+        padding: 0 16px;
+    }
+    
     .profile-image-container,
     .watermark-container {
         flex-direction: column;
@@ -2441,7 +2467,6 @@ body {
 @media (max-width: 1024px) {
     .watch-container {
         flex-direction: column;
-        margin-left: 0 !important;
     }
     
     .watch-sidebar {
@@ -2458,9 +2483,8 @@ body {
         transform: translateX(0);
     }
     
-    .main-content,
-    .watch-container {
-        margin-left: 0 !important;
+    .main-content {
+        margin-left: 0;
     }
     
     .header-center {
@@ -3440,23 +3464,6 @@ body {
     border-radius: 50%;
 }
 
-/* WATCH PAGE - Sidebar collapsed by default */
-.watch-page .sidebar {
-    transform: translateX(-100%);
-}
-
-.watch-page .sidebar.active {
-    transform: translateX(0);
-}
-
-.watch-page .watch-container {
-    margin-left: 0;
-}
-
-.watch-page .watch-container.sidebar-open {
-    margin-left: var(--sidebar-width);
-}
-
 /* WATCH PAGE - Channel Info Section */
 .watch-page .channel-info .channel-avatar {
     width: 48px;
@@ -3481,5 +3488,413 @@ body {
     height: 32px;
     border-radius: 50%;
     object-fit: cover;
+}
+
+/* ============================================= */
+/* CHANNEL PAGE - ENHANCED STYLES */
+/* ============================================= */
+
+/* Channel Info Section (below banner) */
+.channel-info-section {
+    max-width: 1284px;
+    margin: 0 auto;
+    padding: 24px;
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+}
+
+.channel-avatar-container {
+    flex-shrink: 0;
+}
+
+.channel-avatar-large {
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    overflow: hidden;
+    background-color: var(--bg-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.channel-avatar-large img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.channel-avatar-large i {
+    font-size: 80px;
+    color: var(--text-secondary);
+}
+
+.channel-details-yt {
+    flex: 1;
+    min-width: 0;
+}
+
+.channel-name-yt {
+    font-size: 36px;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+    color: var(--text-primary);
+}
+
+.channel-description-preview {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin: 12px 0;
+    line-height: 1.5;
+}
+
+/* Subscribe Button on Channel Page */
+.channel-info-section .subscribe-btn {
+    margin-top: 16px;
+    padding: 10px 16px;
+    border-radius: 24px;
+    background-color: #cc0000;
+    color: white;
+    border: none;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+}
+
+.channel-info-section .subscribe-btn:hover {
+    background-color: #b00000;
+}
+
+.channel-info-section .subscribe-btn.subscribed {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+.channel-info-section .subscribe-btn.subscribed:hover {
+    background-color: var(--bg-hover);
+}
+
+/* Videos Grid on Channel Page */
+.videos-grid-yt {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 24px;
+    padding: 0;
+}
+
+.videos-grid-yt .video-card {
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    color: var(--text-primary);
+    transition: transform 0.2s;
+}
+
+.videos-grid-yt .video-card:hover {
+    transform: translateY(-2px);
+}
+
+.videos-grid-yt .video-thumbnail {
+    width: 100%;
+    aspect-ratio: 16/9;
+    background-color: var(--bg-secondary);
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+}
+
+.videos-grid-yt .video-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.videos-grid-yt .video-duration {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    background: rgba(0, 0, 0, 0.85);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.videos-grid-yt .video-details {
+    padding: 12px 0;
+}
+
+.videos-grid-yt .video-title {
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.4;
+    margin: 0 0 4px 0;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.videos-grid-yt .video-stats {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+/* Horizontal Videos Scroll */
+.videos-horizontal-scroll {
+    display: flex;
+    gap: 16px;
+    overflow-x: auto;
+    padding-bottom: 16px;
+    scrollbar-width: thin;
+}
+
+.videos-horizontal-scroll::-webkit-scrollbar {
+    height: 8px;
+}
+
+.videos-horizontal-scroll::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+    border-radius: 4px;
+}
+
+.videos-horizontal-scroll::-webkit-scrollbar-thumb {
+    background: var(--text-secondary);
+    border-radius: 4px;
+}
+
+.video-card-horizontal {
+    min-width: 280px;
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    color: var(--text-primary);
+}
+
+.video-card-horizontal .video-thumbnail-container {
+    width: 100%;
+    aspect-ratio: 16/9;
+    background-color: var(--bg-secondary);
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+}
+
+.video-card-horizontal .video-thumbnail-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.video-info-horizontal {
+    padding: 12px 0;
+}
+
+.video-title-horizontal {
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.4;
+    margin: 0 0 4px 0;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.video-meta-horizontal {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+/* Shorts Grid */
+.shorts-grid-yt {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+}
+
+.short-card-yt {
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    color: var(--text-primary);
+}
+
+.short-card-yt .short-thumbnail {
+    width: 100%;
+    aspect-ratio: 9/16;
+    background-color: var(--bg-secondary);
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+}
+
+.short-card-yt .short-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.short-card-yt .short-duration {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    background: rgba(0, 0, 0, 0.85);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.short-card-yt .short-title {
+    font-size: 14px;
+    font-weight: 500;
+    margin: 8px 0 4px 0;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.short-card-yt .short-views {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+/* Sections */
+.shorts-section-yt,
+.videos-section-yt {
+    margin-bottom: 32px;
+}
+
+.section-header-yt {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.section-header-yt h2 {
+    font-size: 20px;
+    font-weight: 500;
+    margin: 0;
+}
+
+.play-all-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    text-decoration: none;
+    border-radius: 24px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background 0.2s;
+}
+
+.play-all-btn:hover {
+    background: var(--bg-hover);
+}
+
+/* Filter Bar */
+.filter-bar-yt {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+}
+
+.filter-btn-yt {
+    padding: 8px 16px;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border: none;
+    border-radius: 24px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+}
+
+.filter-btn-yt:hover {
+    background: var(--bg-hover);
+}
+
+.filter-btn-yt.active {
+    background: var(--text-primary);
+    color: var(--bg-primary);
+}
+
+/* About Section */
+.about-section-yt {
+    max-width: 800px;
+}
+
+.about-box {
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 16px;
+}
+
+.about-box h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0 0 12px 0;
+}
+
+.about-box p {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    margin: 8px 0;
+}
+
+.about-box i {
+    margin-right: 8px;
+    color: var(--text-secondary);
+}
+
+.channel-link {
+    color: var(--accent-color);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 0;
+}
+
+.channel-link:hover {
+    text-decoration: underline;
+}
+
+/* Tab Panes */
+.tab-pane {
+    display: none;
+}
+
+.tab-pane.active {
+    display: block;
+}
+
+/* No Content Message */
+.no-content {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-secondary);
 }
 

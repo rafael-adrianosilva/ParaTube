@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>✅ Teste Rápido - Vídeos Aparecem?</title>
+    <style>
+        body {
+            background: #181818;
+            color: #fff;
+            font-family: 'Segoe UI', sans-serif;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .status {
+            padding: 16px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid;
+        }
+        .ok { background: #1a3a1a; border-color: #00ff00; }
+        .fail { background: #3a1a1a; border-color: #ff0000; }
+        .info { background: #1a1a3a; border-color: #4444ff; }
+        h1 { color: #ff0000; }
+        button {
+            background: #ff0000;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            margin: 10px 5px;
+        }
+        button:hover { background: #cc0000; }
+        code {
+            background: #0d0d0d;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <h1>✅ Teste Rápido - Vídeos Aparecem?</h1>
+    <p>Este teste simples verifica se os vídeos aparecem nas páginas.</p>
+
+    <button onclick="testMyChannel()">🔍 Testar my-channel.html</button>
+    <button onclick="testChannel()">🔍 Testar channel.html</button>
+
+    <div id="result"></div>
+
+    <hr style="margin: 30px 0; border-color: #333;">
+
+    <h2>📋 Checklist Manual</h2>
+    <div class="status info">
+        <strong>1. Verificar Login</strong><br>
+        • Você está logado? Vá para <code>login.html</code> se necessário
+    </div>
+
+    <div class="status info">
+        <strong>2. Abrir my-channel.html</strong><br>
+        • Pressione F12 → Console<br>
+        • Pressione Ctrl+Shift+R (hard refresh)<br>
+        • Clique na aba <strong>"Vídeos"</strong><br>
+        • Os vídeos devem aparecer lá!
+    </div>
+
+    <div class="status info">
+        <strong>3. Ver Console</strong><br>
+        Deve aparecer:<br>
+        <code>🎨 Shorts (<60s): 5</code><br>
+        <code>🎨 Vídeos regulares (≥60s): 0</code><br>
+        <code>🎨 Total: 5</code><br>
+        <code>✅ RENDERIZAÇÃO COMPLETA</code>
+    </div>
+
+    <div class="status info">
+        <strong>4. Por que só na aba "Vídeos"?</strong><br>
+        • Seus vídeos têm duração <code>0:05</code> (5 segundos)<br>
+        • Vídeos com menos de 60 segundos são classificados como <strong>Shorts</strong><br>
+        • Na aba <strong>"Início"</strong>, aparece só a seção de <strong>Shorts</strong><br>
+        • Na aba <strong>"Vídeos"</strong>, aparecem <strong>TODOS</strong> os vídeos<br>
+        • Na aba <strong>"Shorts"</strong>, aparecem apenas os Shorts
+    </div>
+
+    <script>
+        function testMyChannel() {
+            const result = document.getElementById('result');
+            result.innerHTML = `
+                <div class="status info">
+                    <strong>🔍 Testando my-channel.html...</strong><br><br>
+                    
+                    <strong>Passo 1:</strong> Verificando se você está logado...<br>
+                    ${localStorage.getItem('user') ? '✅ Usuário logado' : '❌ NÃO logado - faça login primeiro!'}<br><br>
+                    
+                    <strong>Passo 2:</strong> Instruções:<br>
+                    1. Abra <a href="my-channel.html" target="_blank" style="color: #ff0000;">my-channel.html</a><br>
+                    2. Pressione <code>F12</code> para abrir o Console<br>
+                    3. Pressione <code>Ctrl+Shift+R</code> para hard refresh<br>
+                    4. Clique na aba <strong>"Vídeos"</strong><br>
+                    5. Os vídeos devem aparecer!<br><br>
+                    
+                    <strong>O que procurar no console:</strong><br>
+                    • <code>🎬 CARREGANDO VÍDEOS</code><br>
+                    • <code>✅ Vídeos carregados: [array]</code><br>
+                    • <code>🎨 Total: 5</code><br>
+                    • <code>📺 Renderizando aba VÍDEOS (grid)...</code><br>
+                    • <code>🎯 displayAllVideosGrid CHAMADA</code><br>
+                    • <code>✅ Grid renderizado com sucesso!</code><br><br>
+                    
+                    <strong>Se NÃO aparecer:</strong><br>
+                    • Copie TODAS as mensagens do console<br>
+                    • Me envie para analisar
+                </div>
+            `;
+        }
+
+        function testChannel() {
+            const result = document.getElementById('result');
+            result.innerHTML = `
+                <div class="status info">
+                    <strong>🔍 Testando channel.html...</strong><br><br>
+                    
+                    <strong>Instruções:</strong><br>
+                    1. Abra <a href="channel.html?id=5" target="_blank" style="color: #ff0000;">channel.html?id=5</a><br>
+                    2. Pressione <code>F12</code> para abrir o Console<br>
+                    3. Pressione <code>Ctrl+Shift+R</code> para hard refresh<br>
+                    4. Clique na aba <strong>"Vídeos"</strong><br>
+                    5. Os vídeos do usuário ID 5 devem aparecer!<br><br>
+                    
+                    <strong>Teste com outro usuário:</strong><br>
+                    • <a href="channel.html?id=1" target="_blank" style="color: #ff0000;">channel.html?id=1</a> (CodeMaster)<br>
+                    • Deve mostrar vídeos DIFERENTES<br><br>
+                    
+                    <strong>O que procurar no console:</strong><br>
+                    • <code>🎬 Carregando vídeos do canal: 5</code><br>
+                    • <code>✅ Vídeos carregados: [array]</code><br>
+                    • <code>📦 Total visível: X</code><br>
+                    • <code>🎯 displayAllVideosGrid CHAMADA</code><br>
+                    • <code>✅ Grid de vídeos renderizado com sucesso</code>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Teste de Conexão</title>
+</head>
+<body>
+    <h1>Teste de Conexão PHP/MySQL</h1>
+    
+    <h2>1. Testar conexão direta</h2>
+    <button onclick="testConnection()">Testar Conexão</button>
+    <pre id="connectionResult"></pre>
+    
+    <h2>2. Testar subscribe.php</h2>
+    <label>Channel ID: <input type="number" id="channelId" value="1"></label>
+    <button onclick="testSubscribe()">Testar Subscribe</button>
+    <pre id="subscribeResult"></pre>
+    
+    <h2>3. Testar channel stats</h2>
+    <label>User ID: <input type="number" id="userId" value="1"></label>
+    <button onclick="testStats()">Testar Stats</button>
+    <pre id="statsResult"></pre>
+    
+    <script>
+        async function testConnection() {
+            try {
+                const response = await fetch('php/test-connection.php');
+                const data = await response.text();
+                document.getElementById('connectionResult').textContent = data;
+            } catch (error) {
+                document.getElementById('connectionResult').textContent = 'ERRO: ' + error.message;
+            }
+        }
+        
+        async function testSubscribe() {
+            const channelId = document.getElementById('channelId').value;
+            try {
+                const response = await fetch('php/subscribe.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-User-Id': '2'
+                    },
+                    body: JSON.stringify({ channelId: parseInt(channelId) })
+                });
+                const data = await response.json();
+                document.getElementById('subscribeResult').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('subscribeResult').textContent = 'ERRO: ' + error.message;
+            }
+        }
+        
+        async function testStats() {
+            const userId = document.getElementById('userId').value;
+            try {
+                const response = await fetch(`php/get-channel-stats.php`, {
+                    headers: {
+                        'X-User-Id': userId
+                    }
+                });
+                const data = await response.json();
+                document.getElementById('statsResult').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('statsResult').textContent = 'ERRO: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>

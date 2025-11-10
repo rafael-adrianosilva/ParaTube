@@ -30,13 +30,17 @@ if ($result->num_rows > 0) {
     $customization = $result->fetch_assoc();
     echo json_encode([
         'success' => true,
-        'banner' => $customization['banner'],
-        'watermark' => $customization['watermark'],
-        'links' => $customization['links']
+        'banner' => $customization['banner'] ?: null,
+        'watermark' => $customization['watermark'] ?: null,
+        'links' => $customization['links'] ?: null
     ]);
 } else {
+    // Return success with null values if no customization exists yet
     echo json_encode([
-        'success' => false,
+        'success' => true,
+        'banner' => null,
+        'watermark' => null,
+        'links' => null,
         'message' => 'Nenhuma personalização encontrada'
     ]);
 }

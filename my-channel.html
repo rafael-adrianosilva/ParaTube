@@ -5,9 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ParaTube - Meu Canal</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/channel.css?v=3">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="my-channel-page">
+<body class="channel-page my-channel-page">
     <!-- Header -->
     <header class="header">
         <div class="header-left">
@@ -106,33 +107,27 @@
     <!-- Main Content -->
     <main class="main-content">
         <!-- Channel Banner -->
-        <div class="channel-banner">
-            <div class="channel-banner-overlay"></div>
-        </div>
+        <div class="channel-banner" id="channelBanner"></div>
 
-        <!-- Channel Header (YouTube Style) -->
-        <div class="channel-header youtube-style">
-            <div class="channel-header-inner">
-                <div class="channel-avatar">
-                    <img id="channelAvatar" src="" alt="Canal" style="display: none;">
-                    <i class="fas fa-user-circle" id="channelAvatarIcon"></i>
+        <!-- Channel Info -->
+        <div class="channel-info-section">
+            <div class="channel-avatar-container">
+                <img src="https://via.placeholder.com/160" alt="Channel Avatar" class="channel-avatar-large" id="channelAvatar">
+            </div>
+            
+            <div class="channel-details-yt">
+                <h1 class="channel-name-yt" id="channelName">Meu Canal</h1>
+                <div class="channel-meta">
+                    <span class="channel-handle" id="channelHandle">@usuario</span>
+                    <span class="meta-separator">•</span>
+                    <span id="subscriberCount">0 inscritos</span>
+                    <span class="meta-separator">•</span>
+                    <span id="videoCount">0 vídeos</span>
                 </div>
-                <div class="channel-info-main">
-                    <h1 class="channel-name" id="channelName">Meu Canal</h1>
-                    <div class="channel-meta">
-                        <span id="channelUsername" class="channel-handle">@usuario</span>
-                        <span class="separator">•</span>
-                        <span id="subscriberCount">0 inscritos</span>
-                        <span class="separator">•</span>
-                        <span id="videoCount">0 vídeos</span>
-                    </div>
-                    <div class="channel-description-short" id="channelDescriptionShort">
-                        <span id="descriptionText">Saiba mais sobre este canal</span>
-                        <button class="more-info-btn">...mais</button>
-                    </div>
-                    <a href="#" id="channelLink" class="channel-link" style="display: none;"></a>
-                </div>
-                <div class="channel-actions-buttons">
+                <p class="channel-description-preview" id="channelDescriptionPreview"></p>
+                
+                <!-- Action Buttons for Own Channel -->
+                <div class="channel-action-buttons">
                     <button class="btn-customize-channel" onclick="window.location.href='customize-channel.html'">
                         <i class="fas fa-palette"></i>
                         Personalizar canal
@@ -145,82 +140,96 @@
             </div>
         </div>
 
-        <!-- Channel Navigation Tabs (YouTube Style) -->
-        <div class="channel-navigation">
-            <div class="channel-nav-tabs">
-                <button class="nav-tab active" data-tab="inicio">Início</button>
-                <button class="nav-tab" data-tab="videos">Vídeos</button>
-                <button class="nav-tab" data-tab="shorts">Shorts</button>
-                <button class="nav-tab" data-tab="sobre">Sobre</button>
-                <button class="nav-tab-search">
-                    <i class="fas fa-search"></i>
-                </button>
-            </div>
+        <!-- Channel Navigation Tabs -->
+        <div class="channel-tabs">
+            <button class="channel-tab active" data-tab="inicio">Início</button>
+            <button class="channel-tab" data-tab="videos">Vídeos</button>
+            <button class="channel-tab" data-tab="shorts">Shorts</button>
+            <button class="channel-tab" data-tab="sobre">Sobre</button>
         </div>
 
-        <!-- Tab Content: Início -->
-        <div class="tab-content-yt active" id="inicioTab">
-            <!-- Shorts Section -->
-            <div class="shorts-section" id="shortsSection" style="display: none;">
-                <div class="section-header">
-                    <h2>
-                        <i class="fab fa-youtube shorts-icon"></i>
-                        Shorts
-                    </h2>
-                    <button class="more-options-btn">
-                        <i class="fas fa-ellipsis-v"></i>
-                    </button>
-                </div>
-                <div class="shorts-grid" id="shortsGrid">
-                    <!-- Shorts will be loaded here -->
-                </div>
-            </div>
-
-            <!-- Videos Section -->
-            <div class="videos-section">
-                <div class="section-header">
-                    <h2>Vídeos</h2>
-                </div>
-                <div class="videos-horizontal-scroll" id="videosHorizontalScroll">
-                    <!-- Videos will be loaded here -->
-                </div>
-            </div>
-        </div>
-
-        <!-- Tab Content: Videos -->
-        <div class="tab-content-yt" id="videosTab">
-            <div class="videos-filter-bar">
-                <div class="filter-buttons">
-                    <button class="filter-btn active" data-filter="all">Mais recentes</button>
-                    <button class="filter-btn" data-filter="popular">Mais populares</button>
-                    <button class="filter-btn" data-filter="oldest">Mais antigos</button>
-                </div>
-            </div>
-            <div class="videos-grid-standard" id="allVideosGrid">
-                <!-- All videos will be loaded here -->
-            </div>
-        </div>
-
-        <!-- Tab Content: Shorts -->
-        <div class="tab-content-yt" id="shortsTab">
-            <div class="shorts-grid-full" id="allShortsGrid">
-                <!-- All shorts will be loaded here -->
-            </div>
-        </div>
-
-        <!-- Tab Content: Sobre -->
-        <div class="tab-content-yt" id="sobreTab">
-            <div class="about-section">
-                <h2>Sobre</h2>
-                <div class="about-content">
-                    <div class="about-item">
-                        <h3>Descrição</h3>
-                        <p id="aboutDescription">Sem descrição</p>
+        <!-- Tab Content -->
+        <div class="tab-content-yt">
+            <!-- Início Tab -->
+            <div class="tab-pane active" id="inicio-content">
+                <!-- Pinned Video Section -->
+                <div class="pinned-video-section" id="pinnedVideoSection" style="display: none;">
+                    <div class="section-header-yt">
+                        <h2>
+                            <i class="fas fa-thumbtack"></i>
+                            Vídeo Fixado
+                        </h2>
                     </div>
-                    <div class="about-item">
-                        <h3>Detalhes</h3>
-                        <p><i class="fas fa-calendar"></i> Inscrito em <span id="joinDate">-</span></p>
-                        <p><i class="fas fa-eye"></i> <span id="totalViews">0</span> visualizações</p>
+                    <div id="pinnedVideoContainer">
+                        <!-- Pinned video will be loaded here -->
+                    </div>
+                </div>
+                
+                <!-- Shorts Section -->
+                <div class="shorts-section-yt" id="shortsSection" style="display: none;">
+                    <div class="section-header-yt">
+                        <h2>Shorts</h2>
+                    </div>
+                    <div class="shorts-grid-yt" id="shortsGrid">
+                        <!-- Shorts will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Videos Section -->
+                <div class="videos-section-yt" id="videosSection" style="display: none;">
+                    <div class="section-header-yt">
+                        <h2>Vídeos</h2>
+                        <a href="#" class="play-all-btn" id="playAllBtn">
+                            <i class="fas fa-play"></i>
+                            Reproduzir tudo
+                        </a>
+                    </div>
+                    <div class="videos-horizontal-scroll" id="videosScroll">
+                        <!-- Videos will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vídeos Tab -->
+            <div class="tab-pane" id="videos-content">
+                <div class="filter-bar-yt">
+                    <button class="filter-btn-yt active" data-filter="recent">Mais recentes</button>
+                    <button class="filter-btn-yt" data-filter="popular">Mais populares</button>
+                    <button class="filter-btn-yt" data-filter="oldest">Mais antigos</button>
+                </div>
+                <div class="videos-grid-yt" id="allVideosGrid">
+                    <!-- All videos will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Shorts Tab -->
+            <div class="tab-pane" id="shorts-content">
+                <div class="shorts-grid-yt" id="allShortsGrid">
+                    <!-- All shorts will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Sobre Tab -->
+            <div class="tab-pane" id="sobre-content">
+                <div class="about-section-yt">
+                    <div class="about-box">
+                        <h3>Descrição</h3>
+                        <p id="channelDescriptionFull">Nenhuma descrição disponível.</p>
+                    </div>
+                    
+                    <div class="about-box">
+                        <h3>Estatísticas</h3>
+                        <p><i class="fas fa-users"></i> <span id="subscribersAbout">0 inscritos</span></p>
+                        <p><i class="fas fa-video"></i> <span id="videosAbout">0 vídeos</span></p>
+                        <p><i class="fas fa-eye"></i> <span id="totalViewsAbout">0 visualizações</span></p>
+                        <p><i class="fas fa-calendar"></i> Entrou em <span id="joinedDate">--</span></p>
+                    </div>
+
+                    <div class="about-box" id="linksBox" style="display: none;">
+                        <h3>Links</h3>
+                        <div id="channelLinks">
+                            <!-- Links will be loaded here -->
+                        </div>
                     </div>
                 </div>
             </div>

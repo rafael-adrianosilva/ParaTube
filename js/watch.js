@@ -107,15 +107,20 @@ function displayVideo(video) {
     const channelNameElement = document.getElementById('channelName');
     channelNameElement.textContent = video.channel;
     
-    // Set channel link
+    // Set channel link and store channel ID
     const channelLink = document.getElementById('channelLink');
     const channelId = video.user_id || video.channelId || 1;
     channelLink.href = `channel.html?id=${channelId}`;
     
+    // CRITICAL FIX: Store channel ID in data attribute for subscribe button
+    channelNameElement.setAttribute('data-channel-id', channelId);
+    
     // Set channel avatar if exists
     if (video.channel_avatar) {
         const avatarContainer = document.getElementById('channelAvatarContainer');
-        avatarContainer.innerHTML = `<img src="${video.channel_avatar}" alt="${video.channel}">`;
+        if (avatarContainer) {
+            avatarContainer.innerHTML = `<img src="${video.channel_avatar}" alt="${video.channel}">`;
+        }
     }
     
     document.getElementById('channelSubs').textContent = `${video.subscribers} inscritos`;
@@ -750,6 +755,46 @@ document.getElementById('saveBtn')?.addEventListener('click', () => {
     alert('Recurso de salvar em playlist será implementado em breve!');
 });
 
-// Load video on page load
-loadVideo();
+// ===== INITIALIZE PAGE =====
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('🎬 Watch page loaded');
+    
+    // Close sidebar automatically for better video viewing experience
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.querySelector('.main-content');
+    const menuBtn = document.getElementById('menuBtn');
+    
+    if (sidebar) {
+        // Remove active class and add closed class
+        sidebar.classList.remove('active');
+        sidebar.classList.add('closed');
+        console.log('✅ Sidebar fechada automaticamente para melhor visualização');
+    }
+    
+    if (mainContent) {
+        mainContent.classList.add('full-width');
+    }
+    
+    // Menu button toggle
+    if (menuBtn && sidebar) {
+        menuBtn.addEventListener('click', () => {
+            const isClosed = sidebar.classList.contains('closed');
+            
+            if (isClosed) {
+                sidebar.classList.remove('closed');
+                sidebar.classList.add('active');
+                mainContent?.classList.remove('full-width');
+            } else {
+                sidebar.classList.remove('active');
+                sidebar.classList.add('closed');
+                mainContent?.classList.add('full-width');
+            }
+            
+            console.log('🔄 Sidebar toggled:', isClosed ? 'opened' : 'closed');
+        });
+    }
+    
+    // Load video
+    loadVideo();
+});
 

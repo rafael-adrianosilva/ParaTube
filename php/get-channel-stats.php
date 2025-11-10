@@ -7,6 +7,8 @@ header('Access-Control-Allow-Headers: Content-Type, X-User-Id');
 session_start();
 require_once 'config.php';
 
+$conn = getDBConnection();
+
 // Get user ID from session or header
 $userId = null;
 if (isset($_SESSION['user_id'])) {

@@ -6,14 +6,19 @@ let allShorts = [];
 function checkChannelAuth() {
     const user = localStorage.getItem('user');
     if (!user) {
+        console.error('❌ Nenhum usuário no localStorage');
         window.location.href = 'login.html';
         return null;
     }
     try {
         currentUser = JSON.parse(user);
+        console.log('✅ Usuário carregado do localStorage:', currentUser);
+        console.log('   - ID:', currentUser.id);
+        console.log('   - Username:', currentUser.username);
+        console.log('   - Email:', currentUser.email);
         return currentUser;
     } catch (error) {
-        console.error('Erro:', error);
+        console.error('❌ Erro ao parsear usuário:', error);
         window.location.href = 'login.html';
         return null;
     }
@@ -22,19 +27,25 @@ function checkChannelAuth() {
 async function loadChannelInfo() {
     if (!currentUser) return;
     try {
+        console.log('📊 Carregando info do canal para user ID:', currentUser.id);
         const response = await fetch('php/get-profile.php', {
-            headers: { 'X-User-Id': currentUser.id }
+            headers: { 'X-User-Id': currentUser.id.toString() }
         });
         const data = await response.json();
+        console.log('✅ Resposta get-profile:', data);
+        
         if (data.success) {
-            updateChannelHeader(data.profile);
-            updateAboutTab(data.profile);
+            // Use data directly, not data.profile (both are available for compatibility)
+            updateChannelHeader(data);
+            updateAboutTab(data);
+        } else {
+            console.error('❌ Erro ao carregar perfil:', data.message);
         }
         
         // Load channel customization (banner, links)
         await loadChannelCustomization();
     } catch (error) {
-        console.error('Erro:', error);
+        console.error('❌ Erro ao carregar info do canal:', error);
     }
 }
 
@@ -42,41 +53,78 @@ async function loadChannelCustomization() {
     if (!currentUser) return;
     try {
         const response = await fetch('php/get-channel-customization.php', {
-            headers: { 'X-User-Id': currentUser.id }
+            headers: { 'X-User-Id': currentUser.id.toString() }
         });
         
         if (response.ok) {
             const data = await response.json();
             console.log('🎨 Customização carregada:', data);
             
-            // Set banner
+            // Set banner - check if data has the banner property
             const banner = document.querySelector('.channel-banner');
-            if (data.banner && banner) {
-                banner.style.backgroundImage = `url('${data.banner}')`;
-                banner.style.backgroundSize = 'cover';
-                banner.style.backgroundPosition = 'center';
+            console.log('🎨 Banner element:', banner);
+            console.log('🎨 data.success:', data.success);
+            console.log('🎨 data.banner:', data.banner);
+            console.log('🎨 data.watermark:', data.watermark);
+            
+            if (data.success && data.banner && data.banner !== '' && data.banner !== null) {
+                console.log('🎨 Banner URL recebida:', data.banner);
+                
+                if (banner) {
+                    // Add timestamp to force cache refresh
+                    const bannerUrl = data.banner + '?t=' + new Date().getTime();
+                    console.log('🎨 Banner URL com cache-buster:', bannerUrl);
+                    
+                    // Set styles with high priority
+                    banner.style.setProperty('background-image', `url('${bannerUrl}')`, 'important');
+                    banner.style.setProperty('background-size', 'cover', 'important');
+                    banner.style.setProperty('background-position', 'center', 'important');
+                    banner.style.setProperty('background-repeat', 'no-repeat', 'important');
+                    
+                    console.log('✅ Banner style aplicado com !important!');
+                    console.log('✅ backgroundImage:', banner.style.backgroundImage);
+                    console.log('✅ Computed style:', window.getComputedStyle(banner).backgroundImage);
+                } else {
+                    console.error('❌ Elemento .channel-banner não encontrado no DOM!');
+                }
+            } else {
+                console.log('ℹ️ Nenhum banner personalizado encontrado');
+                console.log('ℹ️ Usando banner padrão (gradiente CSS)');
+            }
+            
+            // Set watermark if exists
+            if (data.success && data.watermark && data.watermark !== '' && data.watermark !== null) {
+                console.log('💧 Marca d\'água encontrada:', data.watermark);
+                // TODO: Implementar exibição de marca d'água
+                // A marca d'água geralmente aparece nos vídeos, não na página do canal
             }
             
             // Set links in about tab (if exists)
-            if (data.links) {
-                const links = JSON.parse(data.links);
-                if (links.length > 0) {
-                    const aboutContent = document.querySelector('.about-content');
-                    if (aboutContent) {
-                        const linksSection = document.createElement('div');
-                        linksSection.className = 'about-item';
-                        linksSection.innerHTML = `
-                            <h3>Links</h3>
-                            ${links.map(link => `
-                                <p><a href="${link.url}" target="_blank" class="channel-link">
-                                    <i class="fas fa-link"></i> ${link.title}
-                                </a></p>
-                            `).join('')}
-                        `;
-                        aboutContent.appendChild(linksSection);
+            if (data.success && data.links) {
+                try {
+                    const links = JSON.parse(data.links);
+                    if (links && links.length > 0) {
+                        const aboutContent = document.querySelector('.about-content');
+                        if (aboutContent) {
+                            const linksSection = document.createElement('div');
+                            linksSection.className = 'about-item';
+                            linksSection.innerHTML = `
+                                <h3>Links</h3>
+                                ${links.map(link => `
+                                    <p><a href="${link.url}" target="_blank" class="channel-link">
+                                        <i class="fas fa-link"></i> ${link.title}
+                                    </a></p>
+                                `).join('')}
+                            `;
+                            aboutContent.appendChild(linksSection);
+                        }
                     }
+                } catch (e) {
+                    console.log('ℹ️ Links não são JSON válido ou estão vazios');
                 }
             }
+        } else {
+            console.log('ℹ️ Resposta não-OK ao buscar customização');
         }
     } catch (error) {
         console.error('Erro ao carregar customização:', error);
@@ -85,70 +133,148 @@ async function loadChannelCustomization() {
 
 function updateChannelHeader(profile) {
     const avatar = document.getElementById('channelAvatar');
-    const avatarIcon = document.getElementById('channelAvatarIcon');
     if (profile.profile_image) {
         avatar.src = profile.profile_image;
-        avatar.style.display = 'block';
-        avatarIcon.style.display = 'none';
-    } else {
-        avatar.style.display = 'none';
-        avatarIcon.style.display = 'block';
     }
+    
     document.getElementById('channelName').textContent = profile.username || 'Meu Canal';
-    document.getElementById('channelUsername').textContent = '@' + (profile.username || 'usuario');
-    const descText = document.getElementById('descriptionText');
+    document.getElementById('channelHandle').textContent = '@' + (profile.username || 'usuario').toLowerCase().replace(/\s+/g, '');
+    
+    const descPreview = document.getElementById('channelDescriptionPreview');
     if (profile.bio && profile.bio.trim() !== '') {
-        descText.textContent = profile.bio.substring(0, 100);
-        if (profile.bio.length > 100) descText.textContent += '...';
+        descPreview.textContent = profile.bio.substring(0, 100);
+        if (profile.bio.length > 100) descPreview.textContent += '...';
     } else {
-        descText.textContent = 'Saiba mais sobre este canal';
+        descPreview.textContent = '';
     }
 }
 
 function updateAboutTab(profile) {
-    document.getElementById('aboutDescription').textContent = profile.bio || 'Sem descrição';
+    document.getElementById('channelDescriptionFull').textContent = profile.bio || 'Sem descrição';
     if (profile.created_at) {
         const date = new Date(profile.created_at);
-        const options = { year: 'numeric', month: 'long', day: 'numeric' };
-        document.getElementById('joinDate').textContent = date.toLocaleDateString('pt-BR', options);
+        const options = { year: 'numeric', month: 'short' };
+        document.getElementById('joinedDate').textContent = date.toLocaleDateString('pt-BR', options);
     }
 }
 
 async function loadChannelStats() {
     if (!currentUser) return;
     try {
+        console.log('📈 Carregando estatísticas para user ID:', currentUser.id);
         const response = await fetch('php/get-channel-stats.php', {
-            headers: { 'X-User-Id': currentUser.id }
+            headers: { 'X-User-Id': currentUser.id.toString() }
         });
         const stats = await response.json();
+        console.log('✅ Estatísticas carregadas:', stats);
+        
         const subCount = stats.subscribers || 0;
         document.getElementById('subscriberCount').textContent = subCount === 1 ? '1 inscrito' : `${subCount} inscritos`;
+        
         const vidCount = stats.videoCount || stats.videos || 0;
         document.getElementById('videoCount').textContent = vidCount === 1 ? '1 vídeo' : `${vidCount} vídeos`;
-        if (document.getElementById('totalViews')) {
-            document.getElementById('totalViews').textContent = stats.totalViews || stats.total_views || 0;
+        
+        // Update about tab stats
+        if (document.getElementById('subscribersAbout')) {
+            document.getElementById('subscribersAbout').textContent = subCount === 1 ? '1 inscrito' : `${subCount} inscritos`;
+        }
+        if (document.getElementById('videosAbout')) {
+            document.getElementById('videosAbout').textContent = vidCount === 1 ? '1 vídeo' : `${vidCount} vídeos`;
+        }
+        if (document.getElementById('totalViewsAbout')) {
+            const totalViews = stats.totalViews || stats.total_views || 0;
+            document.getElementById('totalViewsAbout').textContent = formatViews(totalViews) + ' visualizações';
         }
     } catch (error) {
-        console.error('Erro ao carregar estatísticas:', error);
+        console.error('❌ Erro ao carregar estatísticas:', error);
     }
 }
 
 async function loadAllVideos() {
-    if (!currentUser) return;
+    if (!currentUser) {
+        console.error('❌ currentUser is null ou undefined!');
+        return;
+    }
+    
+    console.log('🎬 =================================');
+    console.log('🎬 CARREGANDO VÍDEOS');
+    console.log('🎬 User ID:', currentUser.id);
+    console.log('🎬 =================================');
+    
     try {
         const response = await fetch('php/get-user-videos.php', {
-            headers: { 'X-User-Id': currentUser.id }
+            headers: { 'X-User-Id': currentUser.id.toString() }
         });
+        
+        console.log('📡 Response status:', response.status);
+        console.log('📡 Response OK:', response.ok);
+        
+        if (!response.ok) {
+            console.error('❌ Erro HTTP:', response.status);
+            allVideos = [];
+            allShorts = [];
+            displayAllVideosGrid([]);
+            displayAllShortsGrid([]);
+            return;
+        }
+        
         const videos = await response.json();
-        allVideos = videos;
-        allShorts = videos.filter(v => parseDuration(v.duration) < 60);
-        const regularVideos = videos.filter(v => parseDuration(v.duration) >= 60);
+        console.log('✅ Vídeos carregados:', videos);
+        console.log('📊 Total de vídeos:', videos.length);
+        console.log('📦 Tipo:', Array.isArray(videos) ? 'Array' : typeof videos);
+        
+        // Check if it's an error response
+        if (videos.success === false) {
+            console.error('❌ Erro do servidor:', videos.message);
+            allVideos = [];
+            allShorts = [];
+        } else {
+            allVideos = Array.isArray(videos) ? videos : [];
+        }
+        
+        // Separate shorts and regular videos
+        allShorts = allVideos.filter(v => parseDuration(v.duration) < 60);
+        const regularVideos = allVideos.filter(v => parseDuration(v.duration) >= 60);
+        
+        console.log('🎞️ Vídeos regulares:', regularVideos.length);
+        console.log('📱 Shorts:', allShorts.length);
+        
+        // List all video titles for debugging
+        if (allVideos.length > 0) {
+            console.log('📋 Títulos dos vídeos:');
+            allVideos.forEach((v, i) => {
+                console.log(`  ${i + 1}. "${v.title}" (ID: ${v.id}, Duração: ${v.duration})`);
+            });
+        }
+        
+        // Display videos in all sections
+        console.log('🎨 =================================');
+        console.log('🎨 RENDERIZANDO VÍDEOS');
+        console.log('🎨 =================================');
+        
+        console.log('📺 Chamando displayShortsSection com', allShorts.slice(0, 6).length, 'shorts');
         displayShortsSection(allShorts.slice(0, 6));
+        
+        console.log('📺 Chamando displayVideosHorizontal com', regularVideos.slice(0, 10).length, 'vídeos');
         displayVideosHorizontal(regularVideos.slice(0, 10));
-        displayAllVideosGrid(videos);
+        
+        console.log('📺 Chamando displayAllVideosGrid com', allVideos.length, 'vídeos');
+        displayAllVideosGrid(allVideos);
+        
+        console.log('📺 Chamando displayAllShortsGrid com', allShorts.length, 'shorts');
         displayAllShortsGrid(allShorts);
+        
+        console.log('✅ =================================');
+        console.log('✅ RENDERIZAÇÃO COMPLETA');
+        console.log('✅ =================================');
+        
     } catch (error) {
-        console.error('Erro ao carregar vídeos:', error);
+        console.error('❌ Erro ao carregar vídeos:', error);
+        console.error('❌ Stack trace:', error.stack);
+        allVideos = [];
+        allShorts = [];
+        displayAllVideosGrid([]);
+        displayAllShortsGrid([]);
     }
 }
 
@@ -169,100 +295,147 @@ function displayShortsSection(shorts) {
     }
     shortsSection.style.display = 'block';
     shortsGrid.innerHTML = shorts.map(short => `
-        <div class="short-card" onclick="window.location.href='watch.html?v=${short.id}'">
-            <img src="${short.thumbnail || 'assets/default-thumbnail.jpg'}" alt="${short.title}">
-            <div class="short-duration">${short.duration || '0:00'}</div>
-            <div class="short-info">
-                <div class="short-title">${short.title}</div>
-                <div class="short-views">${formatViews(short.views)} visualizações</div>
+        <div class="short-card-yt" onclick="window.location.href='watch.html?v=${short.id}'">
+            <div class="short-thumbnail">
+                <img src="${short.thumbnail || 'assets/default-thumbnail.jpg'}" alt="${short.title}">
+                <div class="short-duration">${short.duration || '0:00'}</div>
             </div>
+            <div class="short-title">${short.title}</div>
+            <div class="short-views">${formatViews(short.views)} visualizações</div>
         </div>
     `).join('');
 }
 
 function displayVideosHorizontal(videos) {
-    const container = document.getElementById('videosHorizontalScroll');
+    const videosSection = document.getElementById('videosSection');
+    const container = document.getElementById('videosScroll');
+    
     if (videos.length === 0) {
-        container.innerHTML = '<p style="color: var(--text-secondary);">Nenhum vídeo publicado ainda</p>';
+        videosSection.style.display = 'none';
         return;
     }
+    
+    videosSection.style.display = 'block';
     container.innerHTML = videos.map(video => `
         <div class="video-card-horizontal" onclick="window.location.href='watch.html?v=${video.id}'">
-            <div class="video-thumbnail">
+            <div class="video-thumbnail-container">
                 <img src="${video.thumbnail || 'assets/default-thumbnail.jpg'}" alt="${video.title}">
                 <div class="video-duration">${video.duration || '0:00'}</div>
             </div>
-            <div class="video-info-hor">
-                <div class="video-title">${video.title}</div>
-                <div class="video-meta">${formatViews(video.views)} visualizações • ${formatDate(video.created_at)}</div>
+            <div class="video-info-horizontal">
+                <div class="video-title-horizontal">${video.title}</div>
+                <div class="video-meta-horizontal">${formatViews(video.views)} visualizações • ${formatDate(video.created_at)}</div>
             </div>
         </div>
     `).join('');
 }
 
 function displayAllVideosGrid(videos) {
+    console.log('🎯 displayAllVideosGrid CHAMADA');
+    console.log('🎯 Parâmetro videos:', videos);
+    console.log('🎯 Tipo:', Array.isArray(videos) ? 'Array' : typeof videos);
+    console.log('🎯 Length:', videos ? videos.length : 'N/A');
+    
     const container = document.getElementById('allVideosGrid');
-    if (videos.length === 0) {
-        container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 60px 20px; color: var(--text-secondary);"><i class="fas fa-video" style="font-size: 48px; margin-bottom: 16px; opacity: 0.5;"></i><h3>Nenhum vídeo publicado</h3><p>Publique seu primeiro vídeo para aparecer aqui!</p></div>';
+    console.log('🎯 Container allVideosGrid:', container ? 'ENCONTRADO' : 'NÃO ENCONTRADO');
+    
+    if (!container) {
+        console.error('❌ Container allVideosGrid não encontrado no DOM!');
+        console.error('❌ Verifique se my-channel.html tem <div id="allVideosGrid">');
         return;
     }
-    container.innerHTML = videos.map(video => `
-        <div class="video-card-horizontal" onclick="window.location.href='watch.html?v=${video.id}'">
+    
+    if (!videos || videos.length === 0) {
+        console.log('⚠️ Nenhum vídeo para exibir - mostrando mensagem de "sem conteúdo"');
+        container.innerHTML = '<div class="no-content"><i class="fas fa-video"></i><h3>Nenhum vídeo publicado</h3><p>Publique seu primeiro vídeo para aparecer aqui!</p></div>';
+        return;
+    }
+    
+    console.log('🎨 Gerando HTML para', videos.length, 'vídeos...');
+    
+    const html = videos.map((video, index) => {
+        console.log(`  📹 ${index + 1}. ${video.title}`);
+        return `
+        <a href="watch.html?v=${video.id}" class="video-card">
             <div class="video-thumbnail">
-                <img src="${video.thumbnail || 'assets/default-thumbnail.jpg'}" alt="${video.title}">
+                <img src="${video.thumbnail || 'https://via.placeholder.com/320x180'}" alt="${video.title}">
                 <div class="video-duration">${video.duration || '0:00'}</div>
             </div>
-            <div class="video-info-hor">
-                <div class="video-title">${video.title}</div>
-                <div class="video-meta">${formatViews(video.views)} visualizações • ${formatDate(video.created_at)}</div>
+            <div class="video-details">
+                <h3 class="video-title">${video.title}</h3>
+                <p class="video-stats">${formatViews(video.views)} visualizações • ${formatDate(video.created_at)}</p>
             </div>
-        </div>
-    `).join('');
+        </a>
+    `;
+    }).join('');
+    
+    console.log('🎨 HTML gerado, tamanho:', html.length, 'caracteres');
+    
+    container.innerHTML = html;
+    
+    console.log('✅ container.innerHTML definido');
+    console.log('✅ container.children.length:', container.children.length);
+    console.log('✅ Grid renderizado com sucesso!');
 }
 
 function displayAllShortsGrid(shorts) {
     const container = document.getElementById('allShortsGrid');
     if (shorts.length === 0) {
-        container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 60px 20px; color: var(--text-secondary);"><i class="fab fa-youtube" style="font-size: 48px; margin-bottom: 16px; color: #ff0000; opacity: 0.5;"></i><h3>Nenhum Short publicado</h3><p>Publique vídeos curtos (menos de 60 segundos) para aparecerem aqui!</p></div>';
+        container.innerHTML = '<div class="no-content"><i class="fab fa-youtube" style="color: #ff0000;"></i><h3>Nenhum Short publicado</h3><p>Publique vídeos curtos (menos de 60 segundos) para aparecerem aqui!</p></div>';
         return;
     }
     container.innerHTML = shorts.map(short => `
-        <div class="short-card" onclick="window.location.href='watch.html?v=${short.id}'">
-            <img src="${short.thumbnail || 'assets/default-thumbnail.jpg'}" alt="${short.title}">
-            <div class="short-duration">${short.duration || '0:00'}</div>
-            <div class="short-info">
-                <div class="short-title">${short.title}</div>
-                <div class="short-views">${formatViews(short.views)} visualizações</div>
+        <div class="short-card-yt" onclick="window.location.href='watch.html?v=${short.id}'">
+            <div class="short-thumbnail">
+                <img src="${short.thumbnail || 'assets/default-thumbnail.jpg'}" alt="${short.title}">
+                <div class="short-duration">${short.duration || '0:00'}</div>
             </div>
+            <div class="short-title">${short.title}</div>
+            <div class="short-views">${formatViews(short.views)} visualizações</div>
         </div>
     `).join('');
 }
 
 function setupTabNavigation() {
-    const navTabs = document.querySelectorAll('.nav-tab');
-    const tabContents = document.querySelectorAll('.tab-content-yt');
-    navTabs.forEach(tab => {
+    const tabs = document.querySelectorAll('.channel-tab');
+    const tabPanes = document.querySelectorAll('.tab-pane');
+    
+    tabs.forEach(tab => {
         tab.addEventListener('click', () => {
             const tabName = tab.dataset.tab;
-            navTabs.forEach(t => t.classList.remove('active'));
-            tabContents.forEach(c => c.classList.remove('active'));
+            
+            // Remove active from all tabs and panes
+            tabs.forEach(t => t.classList.remove('active'));
+            tabPanes.forEach(pane => pane.classList.remove('active'));
+            
+            // Add active to clicked tab
             tab.classList.add('active');
-            document.getElementById(`${tabName}Tab`).classList.add('active');
+            
+            // Add active to corresponding pane
+            const targetPane = document.getElementById(`${tabName}-content`);
+            if (targetPane) {
+                targetPane.classList.add('active');
+            }
         });
     });
 }
 
 function setupFilterButtons() {
-    const filterBtns = document.querySelectorAll('.filter-btn');
+    const filterBtns = document.querySelectorAll('.filter-btn-yt');
     filterBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             const filter = btn.dataset.filter;
             filterBtns.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
+            
             let sortedVideos = [...allVideos];
-            if (filter === 'popular') sortedVideos.sort((a, b) => b.views - a.views);
-            else if (filter === 'oldest') sortedVideos.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
-            else sortedVideos.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+            if (filter === 'popular') {
+                sortedVideos.sort((a, b) => (b.views || 0) - (a.views || 0));
+            } else if (filter === 'oldest') {
+                sortedVideos.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+            } else {
+                sortedVideos.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+            }
             displayAllVideosGrid(sortedVideos);
         });
     });
@@ -287,19 +460,31 @@ function formatDate(dateString) {
     return `há ${Math.floor(diffDays / 365)} anos`;
 }
 
-const menuBtn = document.getElementById('menuBtn');
-const sidebar = document.getElementById('sidebar');
-const themeToggle = document.getElementById('themeToggle');
-menuBtn?.addEventListener('click', () => sidebar?.classList.toggle('active'));
-const savedTheme = localStorage.getItem('theme') || 'light';
-document.documentElement.setAttribute('data-theme', savedTheme);
-themeToggle?.addEventListener('click', () => {
-    const currentTheme = document.documentElement.getAttribute('data-theme');
-    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-    document.documentElement.setAttribute('data-theme', newTheme);
-    localStorage.setItem('theme', newTheme);
-    themeToggle.querySelector('i').className = newTheme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
-});
+// Menu and theme handling
+function setupMenuAndTheme() {
+    const menuBtn = document.getElementById('menuBtn');
+    const sidebar = document.getElementById('sidebar');
+    const themeToggle = document.getElementById('themeToggle');
+    
+    // Close sidebar on channel pages for better viewing
+    if (sidebar) {
+        sidebar.classList.remove('active');
+        console.log('✅ Sidebar fechada para melhor visualização do canal');
+    }
+    
+    menuBtn?.addEventListener('click', () => sidebar?.classList.toggle('active'));
+    
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    
+    themeToggle?.addEventListener('click', () => {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        themeToggle.querySelector('i').className = newTheme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+    });
+}
 
 async function loadSubscriptions() {
     const user = localStorage.getItem('user');
@@ -332,25 +517,58 @@ function displaySubscriptionsSidebar(channels) {
     `).join('');
 }
 
-const uploadBtn = document.getElementById('uploadBtn');
-const uploadModal = document.getElementById('uploadModal');
-const closeModal = document.getElementById('closeModal');
-const cancelUpload = document.getElementById('cancelUpload');
-uploadBtn?.addEventListener('click', () => uploadModal?.classList.add('active'));
-closeModal?.addEventListener('click', () => uploadModal?.classList.remove('active'));
-cancelUpload?.addEventListener('click', () => uploadModal?.classList.remove('active'));
-uploadModal?.addEventListener('click', (e) => { if (e.target === uploadModal) uploadModal.classList.remove('active'); });
-document.querySelector('.btn-customize-channel')?.addEventListener('click', () => window.location.href = 'customize-channel.html');
-document.querySelector('.btn-manage-videos')?.addEventListener('click', () => window.location.href = 'manage-videos.html');
+// Setup upload modal
+function setupUploadModal() {
+    const uploadBtn = document.getElementById('uploadBtn');
+    const uploadModal = document.getElementById('uploadModal');
+    const closeModal = document.getElementById('closeModal');
+    const cancelUpload = document.getElementById('cancelUpload');
+    
+    uploadBtn?.addEventListener('click', () => uploadModal?.classList.add('active'));
+    closeModal?.addEventListener('click', () => uploadModal?.classList.remove('active'));
+    cancelUpload?.addEventListener('click', () => uploadModal?.classList.remove('active'));
+    uploadModal?.addEventListener('click', (e) => { 
+        if (e.target === uploadModal) uploadModal.classList.remove('active'); 
+    });
+}
 
+// Setup action buttons
+function setupActionButtons() {
+    document.querySelector('.btn-customize-channel')?.addEventListener('click', () => {
+        window.location.href = 'customize-channel.html';
+    });
+    document.querySelector('.btn-manage-videos')?.addEventListener('click', () => {
+        window.location.href = 'manage-videos.html';
+    });
+}
+
+// Initialize everything when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 Inicializando página My Channel...');
+    
     currentUser = checkChannelAuth();
     if (currentUser) {
+        console.log('✅ Usuário autenticado:', currentUser);
+        
+        // Setup UI
+        setupMenuAndTheme();
+        setupUploadModal();
+        setupActionButtons();
+        setupTabNavigation();
+        setupFilterButtons();
+        
+        // Load data
         loadChannelInfo();
         loadChannelStats();
         loadAllVideos();
         loadSubscriptions();
-        setupTabNavigation();
-        setupFilterButtons();
+        
+        // Extra: Force load banner after a delay to ensure DOM is ready
+        setTimeout(() => {
+            console.log('🔄 Re-carregando customização após 500ms...');
+            loadChannelCustomization();
+        }, 500);
+    } else {
+        console.error('❌ Usuário não autenticado, redirecionando...');
     }
 });

@@ -34,7 +34,7 @@ $conn = getDBConnection();
 // Update user profile
 $profileImagePath = null;
 if (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] === UPLOAD_ERR_OK) {
-    $uploadDir = '../uploads/profiles/';
+    $uploadDir = 'uploads/avatars/';
     if (!file_exists($uploadDir)) {
         mkdir($uploadDir, 0777, true);
     }
@@ -44,7 +44,7 @@ if (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] === UPL
     $uploadPath = $uploadDir . $fileName;
     
     if (move_uploaded_file($_FILES['profile_image']['tmp_name'], $uploadPath)) {
-        $profileImagePath = 'uploads/profiles/' . $fileName;
+        $profileImagePath = 'uploads/avatars/' . $fileName;
     }
 }
 
@@ -68,7 +68,7 @@ $stmt->close();
 // Handle banner upload
 $bannerPath = null;
 if (isset($_FILES['banner']) && $_FILES['banner']['error'] === UPLOAD_ERR_OK) {
-    $uploadDir = '../uploads/banners/';
+    $uploadDir = 'uploads/banners/';
     if (!file_exists($uploadDir)) {
         mkdir($uploadDir, 0777, true);
     }
@@ -85,7 +85,7 @@ if (isset($_FILES['banner']) && $_FILES['banner']['error'] === UPLOAD_ERR_OK) {
 // Handle watermark upload
 $watermarkPath = null;
 if (isset($_FILES['watermark']) && $_FILES['watermark']['error'] === UPLOAD_ERR_OK) {
-    $uploadDir = '../uploads/watermarks/';
+    $uploadDir = 'uploads/watermarks/';
     if (!file_exists($uploadDir)) {
         mkdir($uploadDir, 0777, true);
     }
