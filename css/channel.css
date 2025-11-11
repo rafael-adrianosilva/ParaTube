@@ -16,7 +16,7 @@
 /* Channel Banner */
 .channel-banner {
     width: 100%;
-    height: 180px;
+    height: 250px;
     background: linear-gradient(135deg, #606060 0%, #303030 100%);
     background-size: cover;
     background-position: center;
@@ -41,7 +41,7 @@ body.dark-mode .channel-banner {
 
 .channel-avatar-container {
     flex-shrink: 0;
-    margin-top: -52px;
+    margin-top: -10px; /* Reduzido para menos sobreposição */
 }
 
 .channel-avatar-large {
@@ -53,8 +53,8 @@ body.dark-mode .channel-banner {
     display: flex;
     align-items: center;
     justify-content: center;
-    border: none;
-    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+    border: 4px solid var(--bg-primary); /* Borda mais destacada */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 body.dark-mode .channel-avatar-large {
@@ -681,7 +681,7 @@ body.dark-mode .filter-btn-yt.active {
     }
     
     .channel-banner {
-        height: 140px;
+        height: 180px;
     }
     
     .channel-info-section {
@@ -722,7 +722,7 @@ body.dark-mode .filter-btn-yt.active {
 
 @media (max-width: 480px) {
     .channel-banner {
-        height: 100px;
+        height: 120px;
     }
     
     .channel-avatar-large {

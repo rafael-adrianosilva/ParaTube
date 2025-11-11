@@ -4,8 +4,6 @@ require_once 'config.php';
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 
-session_start();
-
 $userId = null;
 if (isset($_SESSION['user_id'])) {
     $userId = $_SESSION['user_id'];

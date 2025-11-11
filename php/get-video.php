@@ -69,7 +69,7 @@ echo json_encode([
     'channel_avatar' => $video['channel_avatar'],
     'subscribers' => formatViews($video['subscribers']),
     'isSubscribed' => $isSubscribed,
-    'videoUrl' => 'uploads/' . $video['filename']
+    'videoUrl' => $video['filename'] // Não concatena 'uploads/' - já está no banco
 ]);
 
 $stmt->close();

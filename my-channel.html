@@ -107,7 +107,14 @@
     <!-- Main Content -->
     <main class="main-content">
         <!-- Channel Banner -->
-        <div class="channel-banner" id="channelBanner"></div>
+        <div class="channel-banner" id="channelBanner">
+            <div class="channel-banner-overlay">
+                <button class="channel-banner-edit-btn" onclick="window.location.href='customize-channel.html'">
+                    <i class="fas fa-camera"></i>
+                    Editar banner do canal
+                </button>
+            </div>
+        </div>
 
         <!-- Channel Info -->
         <div class="channel-info-section">
@@ -152,19 +159,6 @@
         <div class="tab-content-yt">
             <!-- Início Tab -->
             <div class="tab-pane active" id="inicio-content">
-                <!-- Pinned Video Section -->
-                <div class="pinned-video-section" id="pinnedVideoSection" style="display: none;">
-                    <div class="section-header-yt">
-                        <h2>
-                            <i class="fas fa-thumbtack"></i>
-                            Vídeo Fixado
-                        </h2>
-                    </div>
-                    <div id="pinnedVideoContainer">
-                        <!-- Pinned video will be loaded here -->
-                    </div>
-                </div>
-                
                 <!-- Shorts Section -->
                 <div class="shorts-section-yt" id="shortsSection" style="display: none;">
                     <div class="section-header-yt">

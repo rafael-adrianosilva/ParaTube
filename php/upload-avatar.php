@@ -1,19 +1,29 @@
 <?php
+session_start();
 require_once 'config.php';
 
 header('Content-Type: application/json');
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: POST');
+header('Access-Control-Allow-Headers: Content-Type');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     echo json_encode(['success' => false, 'message' => 'Método não permitido']);
     exit;
 }
 
-if (!isset($_SESSION['user_id'])) {
+// Get user from session or header
+$userId = null;
+if (isset($_SESSION['user_id'])) {
+    $userId = $_SESSION['user_id'];
+} elseif (isset($_SERVER['HTTP_X_USER_ID'])) {
+    $userId = intval($_SERVER['HTTP_X_USER_ID']);
+}
+
+if (!$userId) {
     echo json_encode(['success' => false, 'message' => 'Não autenticado']);
     exit;
 }
-
-$userId = $_SESSION['user_id'];
 
 // Validate file upload
 if (!isset($_FILES['avatar']) || $_FILES['avatar']['error'] !== UPLOAD_ERR_OK) {
@@ -38,15 +48,15 @@ if ($_FILES['avatar']['size'] > $maxSize) {
 }
 
 // Create uploads directory if it doesn't exist
-$uploadsDir = '../uploads/avatars';
-if (!file_exists($uploadsDir)) {
-    mkdir($uploadsDir, 0777, true);
+$uploadsDir = 'uploads/avatars';
+if (!file_exists('../' . $uploadsDir)) {
+    mkdir('../' . $uploadsDir, 0777, true);
 }
 
 // Generate unique filename
 $fileExtension = pathinfo($_FILES['avatar']['name'], PATHINFO_EXTENSION);
 $fileName = 'avatar_' . $userId . '_' . time() . '.' . $fileExtension;
-$uploadPath = $uploadsDir . '/' . $fileName;
+$uploadPath = '../' . $uploadsDir . '/' . $fileName;
 
 // Move uploaded file
 if (!move_uploaded_file($_FILES['avatar']['tmp_name'], $uploadPath)) {
@@ -66,7 +76,7 @@ $user = $result->fetch_assoc();
 $oldAvatar = $user['profile_image'];
 
 // Update with new avatar
-$avatarPath = 'uploads/avatars/' . $fileName;
+$avatarPath = $uploadsDir . '/' . $fileName;
 $stmt = $conn->prepare("UPDATE users SET profile_image = ?, updated_at = NOW() WHERE id = ?");
 $stmt->bind_param("si", $avatarPath, $userId);
 

@@ -215,6 +215,10 @@ function checkAuth() {
             const userData = JSON.parse(user);
             console.log('✅ User authenticated:', userData);
             updateUserMenu(userData);
+            
+            // Buscar perfil atualizado do banco de dados
+            refreshUserProfile(userData.id);
+            
             return userData;
         } catch (e) {
             console.error('❌ Erro ao parsear dados do usuário:', e);
@@ -225,6 +229,42 @@ function checkAuth() {
         showLoginOptions();
     }
     return null;
+}
+
+// Atualizar perfil do usuário do banco de dados
+async function refreshUserProfile(userId) {
+    try {
+        console.log('🔄 Buscando perfil atualizado do usuário ID:', userId);
+        const response = await fetch('php/get-profile.php', {
+            headers: { 'X-User-Id': userId }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            console.log('✅ Perfil atualizado recebido:', data);
+            
+            // Atualizar localStorage com dados mais recentes
+            const currentUser = JSON.parse(localStorage.getItem('user'));
+            const updatedUser = {
+                ...currentUser,
+                username: data.username,
+                email: data.email,
+                profile_image: data.profile_image,
+                bio: data.bio
+            };
+            
+            localStorage.setItem('user', JSON.stringify(updatedUser));
+            console.log('💾 localStorage atualizado com profile_image:', data.profile_image);
+            
+            // Atualizar menu do usuário com nova imagem
+            updateUserMenu(updatedUser);
+        } else {
+            console.error('❌ Erro ao buscar perfil:', data.message);
+        }
+    } catch (error) {
+        console.error('❌ Erro na requisição do perfil:', error);
+    }
 }
 
 // Show login/register options when not logged in

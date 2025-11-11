@@ -2127,6 +2127,14 @@ body {
 .banner-placeholder {
     text-align: center;
     color: var(--text-secondary);
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
 }
 
 .banner-placeholder i {
@@ -2138,7 +2146,10 @@ body {
 .banner-preview img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
+    background-color: var(--bg-secondary);
+    position: absolute;
+    z-index: 1;
 }
 
 .banner-overlay {
@@ -2149,12 +2160,14 @@ body {
     align-items: center;
     justify-content: center;
     gap: 12px;
-    opacity: 0;
+    opacity: 1; /* Sempre visível para facilitar upload */
     transition: opacity 0.3s;
+    z-index: 2; /* Fica por cima do placeholder e da imagem */
 }
 
+/* Overlay fica mais escuro no hover */
 .banner-preview:hover .banner-overlay {
-    opacity: 1;
+    background: rgba(0, 0, 0, 0.7);
 }
 
 .btn-upload-banner,
@@ -2518,17 +2531,55 @@ body {
 /* ===== CHANNEL PAGE ===== */
 .channel-banner {
     width: 100%;
-    height: 200px;
+    height: 250px;
     background: linear-gradient(135deg, var(--accent-color) 0%, #cc0000 100%);
     background-size: cover;
     background-position: center;
+    background-repeat: no-repeat;
     position: relative;
+    cursor: pointer;
+}
+
+.channel-banner:hover {
+    opacity: 0.95;
 }
 
 .channel-banner-overlay {
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.2);
+    background: rgba(0, 0, 0, 0.5);
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.channel-banner:hover .channel-banner-overlay {
+    opacity: 1;
+}
+
+.channel-banner-edit-btn {
+    background: white;
+    color: #000;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: transform 0.2s;
+}
+
+.channel-banner-edit-btn:hover {
+    transform: scale(1.05);
+    background: #f0f0f0;
 }
 
 .channel-header {
@@ -3506,6 +3557,7 @@ body {
 
 .channel-avatar-container {
     flex-shrink: 0;
+    margin-top: -40px; /* Sobreposição menor - só 40px ao invés de metade */
 }
 
 .channel-avatar-large {
@@ -3517,6 +3569,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    border: 4px solid var(--bg-primary); /* Borda para destacar do banner */
 }
 
 .channel-avatar-large img {

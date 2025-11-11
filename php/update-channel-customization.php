@@ -6,8 +6,6 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST');
 header('Access-Control-Allow-Headers: Content-Type, X-User-Id');
 
-session_start();
-
 $userId = null;
 if (isset($_SESSION['user_id'])) {
     $userId = $_SESSION['user_id'];
@@ -34,17 +32,17 @@ $conn = getDBConnection();
 // Update user profile
 $profileImagePath = null;
 if (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] === UPLOAD_ERR_OK) {
-    $uploadDir = 'uploads/avatars/';
-    if (!file_exists($uploadDir)) {
-        mkdir($uploadDir, 0777, true);
+    $uploadDir = 'uploads/avatars';
+    if (!file_exists('../' . $uploadDir)) {
+        mkdir('../' . $uploadDir, 0777, true);
     }
     
     $fileExtension = pathinfo($_FILES['profile_image']['name'], PATHINFO_EXTENSION);
     $fileName = uniqid() . '_' . time() . '.' . $fileExtension;
-    $uploadPath = $uploadDir . $fileName;
+    $uploadPath = '../' . $uploadDir . '/' . $fileName;
     
     if (move_uploaded_file($_FILES['profile_image']['tmp_name'], $uploadPath)) {
-        $profileImagePath = 'uploads/avatars/' . $fileName;
+        $profileImagePath = $uploadDir . '/' . $fileName;
     }
 }
 
@@ -68,34 +66,34 @@ $stmt->close();
 // Handle banner upload
 $bannerPath = null;
 if (isset($_FILES['banner']) && $_FILES['banner']['error'] === UPLOAD_ERR_OK) {
-    $uploadDir = 'uploads/banners/';
-    if (!file_exists($uploadDir)) {
-        mkdir($uploadDir, 0777, true);
+    $uploadDir = 'uploads/banners';
+    if (!file_exists('../' . $uploadDir)) {
+        mkdir('../' . $uploadDir, 0777, true);
     }
     
     $fileExtension = pathinfo($_FILES['banner']['name'], PATHINFO_EXTENSION);
     $fileName = uniqid() . '_' . time() . '.' . $fileExtension;
-    $uploadPath = $uploadDir . $fileName;
+    $uploadPath = '../' . $uploadDir . '/' . $fileName;
     
     if (move_uploaded_file($_FILES['banner']['tmp_name'], $uploadPath)) {
-        $bannerPath = 'uploads/banners/' . $fileName;
+        $bannerPath = $uploadDir . '/' . $fileName;
     }
 }
 
 // Handle watermark upload
 $watermarkPath = null;
 if (isset($_FILES['watermark']) && $_FILES['watermark']['error'] === UPLOAD_ERR_OK) {
-    $uploadDir = 'uploads/watermarks/';
-    if (!file_exists($uploadDir)) {
-        mkdir($uploadDir, 0777, true);
+    $uploadDir = 'uploads/watermarks';
+    if (!file_exists('../' . $uploadDir)) {
+        mkdir('../' . $uploadDir, 0777, true);
     }
     
     $fileExtension = pathinfo($_FILES['watermark']['name'], PATHINFO_EXTENSION);
     $fileName = uniqid() . '_' . time() . '.' . $fileExtension;
-    $uploadPath = $uploadDir . $fileName;
+    $uploadPath = '../' . $uploadDir . '/' . $fileName;
     
     if (move_uploaded_file($_FILES['watermark']['tmp_name'], $uploadPath)) {
-        $watermarkPath = 'uploads/watermarks/' . $fileName;
+        $watermarkPath = $uploadDir . '/' . $fileName;
     }
 }
 

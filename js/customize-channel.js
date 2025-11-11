@@ -72,22 +72,33 @@ async function loadChannelCustomization() {
             // Set banner
             if (data.banner) {
                 const bannerPreview = document.getElementById('bannerPreview');
-                bannerPreview.innerHTML = `<img src="${data.banner}" alt="Banner">`;
-                bannerPreview.innerHTML += `<div class="banner-overlay">
-                    <button class="btn-upload-banner" onclick="document.getElementById('bannerInput').click()">
-                        <i class="fas fa-upload"></i> Alterar banner
-                    </button>
-                    <button class="btn-remove-banner" id="removeBannerBtn">
-                        <i class="fas fa-trash"></i> Remover
-                    </button>
-                </div>`;
+                const bannerUrl = data.banner.startsWith('http') ? data.banner : `${data.banner}`;
+                
+                // Substitui todo o conteúdo, incluindo overlay com botões
+                bannerPreview.innerHTML = `
+                    <img src="${bannerUrl}" alt="Banner" onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="banner-placeholder" style="display: none;">
+                        <i class="fas fa-image"></i>
+                        <p>Erro ao carregar banner</p>
+                    </div>
+                    <div class="banner-overlay">
+                        <button class="btn-upload-banner" onclick="document.getElementById('bannerInput').click()">
+                            <i class="fas fa-upload"></i> Alterar banner
+                        </button>
+                        <button class="btn-remove-banner" id="removeBannerBtn">
+                            <i class="fas fa-trash"></i> Remover
+                        </button>
+                    </div>
+                `;
                 setupRemoveBanner();
             }
+            // Se não tem banner, mantém o HTML padrão que já está na página
             
             // Set watermark
             if (data.watermark) {
                 const watermarkPreview = document.getElementById('watermarkPreview');
-                watermarkPreview.innerHTML = `<img src="${data.watermark}" alt="Watermark">`;
+                const watermarkUrl = data.watermark.startsWith('http') ? data.watermark : `${data.watermark}`;
+                watermarkPreview.innerHTML = `<img src="${watermarkUrl}" alt="Watermark" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\\'watermark-placeholder\\'><i class=\\'fas fa-droplet\\'></i><p>Erro ao carregar marca d\\'água</p></div>';">`;
                 document.getElementById('removeWatermarkBtn').style.display = 'block';
             }
             

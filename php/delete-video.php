@@ -31,7 +31,7 @@ if (!$videoId) {
 $conn = getDBConnection();
 
 // Get video file path and thumbnail to delete files
-$stmt = $conn->prepare("SELECT video_path, thumbnail FROM videos WHERE id = ? AND user_id = ?");
+$stmt = $conn->prepare("SELECT filename, thumbnail FROM videos WHERE id = ? AND user_id = ?");
 $stmt->bind_param("ii", $videoId, $userId);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -47,8 +47,8 @@ $video = $result->fetch_assoc();
 $stmt->close();
 
 // Delete video file and thumbnail
-if ($video['video_path'] && file_exists('../' . $video['video_path'])) {
-    unlink('../' . $video['video_path']);
+if ($video['filename'] && file_exists('../' . $video['filename'])) {
+    unlink('../' . $video['filename']);
 }
 if ($video['thumbnail'] && file_exists('../' . $video['thumbnail'])) {
     unlink('../' . $video['thumbnail']);

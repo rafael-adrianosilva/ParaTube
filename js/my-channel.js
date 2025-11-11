@@ -75,7 +75,7 @@ async function loadChannelCustomization() {
                     const bannerUrl = data.banner + '?t=' + new Date().getTime();
                     console.log('🎨 Banner URL com cache-buster:', bannerUrl);
                     
-                    // Set styles with high priority
+                    // Set styles with high priority - usando cover para preencher toda a área
                     banner.style.setProperty('background-image', `url('${bannerUrl}')`, 'important');
                     banner.style.setProperty('background-size', 'cover', 'important');
                     banner.style.setProperty('background-position', 'center', 'important');

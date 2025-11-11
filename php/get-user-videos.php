@@ -85,7 +85,8 @@ try {
             'title' => $row['title'],
             'description' => $row['description'],
             'thumbnail' => $row['thumbnail'],
-            'videoUrl' => $row['video_url'] ?? '',
+            'videoUrl' => $row['filename'], // Corrigido: banco usa 'filename' não 'video_url'
+            'filename' => $row['filename'], // Mantém compatibilidade
             'views' => intval($row['views']),
             'likes' => intval($row['likes']),
             'dislikes' => intval($row['dislikes']),
