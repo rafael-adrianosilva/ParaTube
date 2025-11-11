@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug - My Channel</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #fff;
+        }
+        .section {
+            background: #2a2a2a;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+        }
+        .success { color: #4caf50; }
+        .error { color: #f44336; }
+        .warning { color: #ff9800; }
+        pre {
+            background: #0a0a0a;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        button {
+            background: #cc0000;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 4px;
+            margin: 5px;
+        }
+        button:hover { background: #aa0000; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Debug - My Channel Backend</h1>
+    
+    <div class="section">
+        <h2>1. LocalStorage User</h2>
+        <pre id="localStorage-user">Checking...</pre>
+        <button onclick="checkLocalStorage()">Recheck LocalStorage</button>
+    </div>
+    
+    <div class="section">
+        <h2>2. Get Profile API</h2>
+        <pre id="profile-result">Click button to test...</pre>
+        <button onclick="testGetProfile()">Test Get Profile</button>
+    </div>
+    
+    <div class="section">
+        <h2>3. Get User Videos API</h2>
+        <pre id="videos-result">Click button to test...</pre>
+        <button onclick="testGetVideos()">Test Get Videos</button>
+    </div>
+    
+    <div class="section">
+        <h2>4. Get Channel Stats API</h2>
+        <pre id="stats-result">Click button to test...</pre>
+        <button onclick="testGetStats()">Test Get Stats</button>
+    </div>
+    
+    <div class="section">
+        <h2>5. Database Direct Check</h2>
+        <input type="number" id="userIdInput" placeholder="User ID" value="1" style="padding: 8px; margin-right: 10px;">
+        <button onclick="testDatabase()">Check Database</button>
+        <pre id="database-result">Click button to test...</pre>
+    </div>
+
+    <script>
+        let currentUser = null;
+
+        function checkLocalStorage() {
+            const user = localStorage.getItem('user');
+            const output = document.getElementById('localStorage-user');
+            
+            if (!user) {
+                output.innerHTML = '<span class="error">❌ No user in localStorage!</span>\n<span class="warning">You need to login first.</span>';
+                return;
+            }
+            
+            try {
+                currentUser = JSON.parse(user);
+                output.innerHTML = '<span class="success">✅ User found in localStorage:</span>\n' + JSON.stringify(currentUser, null, 2);
+            } catch (e) {
+                output.innerHTML = '<span class="error">❌ Error parsing user:</span>\n' + e.message;
+            }
+        }
+
+        async function testGetProfile() {
+            if (!currentUser) {
+                checkLocalStorage();
+                if (!currentUser) return;
+            }
+            
+            const output = document.getElementById('profile-result');
+            output.innerHTML = 'Loading...';
+            
+            try {
+                const response = await fetch('php/get-profile.php', {
+                    headers: { 'X-User-Id': currentUser.id.toString() }
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    output.innerHTML = '<span class="success">✅ Profile loaded successfully:</span>\n' + JSON.stringify(data, null, 2);
+                } else {
+                    output.innerHTML = '<span class="error">❌ Error:</span>\n' + JSON.stringify(data, null, 2);
+                }
+            } catch (e) {
+                output.innerHTML = '<span class="error">❌ Exception:</span>\n' + e.message;
+            }
+        }
+
+        async function testGetVideos() {
+            if (!currentUser) {
+                checkLocalStorage();
+                if (!currentUser) return;
+            }
+            
+            const output = document.getElementById('videos-result');
+            output.innerHTML = 'Loading...';
+            
+            try {
+                const response = await fetch('php/get-user-videos.php', {
+                    headers: { 'X-User-Id': currentUser.id.toString() }
+                });
+                const data = await response.json();
+                
+                if (Array.isArray(data)) {
+                    output.innerHTML = '<span class="success">✅ Videos loaded:</span>\n' +
+                                      '<span class="warning">Total: ' + data.length + ' videos</span>\n' +
+                                      JSON.stringify(data, null, 2);
+                } else if (data.success === false) {
+                    output.innerHTML = '<span class="error">❌ Error:</span>\n' + JSON.stringify(data, null, 2);
+                } else {
+                    output.innerHTML = '<span class="warning">⚠️ Unexpected response:</span>\n' + JSON.stringify(data, null, 2);
+                }
+            } catch (e) {
+                output.innerHTML = '<span class="error">❌ Exception:</span>\n' + e.message;
+            }
+        }
+
+        async function testGetStats() {
+            if (!currentUser) {
+                checkLocalStorage();
+                if (!currentUser) return;
+            }
+            
+            const output = document.getElementById('stats-result');
+            output.innerHTML = 'Loading...';
+            
+            try {
+                const response = await fetch('php/get-channel-stats.php', {
+                    headers: { 'X-User-Id': currentUser.id.toString() }
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    output.innerHTML = '<span class="success">✅ Stats loaded:</span>\n' + JSON.stringify(data, null, 2);
+                } else {
+                    output.innerHTML = '<span class="error">❌ Error:</span>\n' + JSON.stringify(data, null, 2);
+                }
+            } catch (e) {
+                output.innerHTML = '<span class="error">❌ Exception:</span>\n' + e.message;
+            }
+        }
+
+        async function testDatabase() {
+            const userId = document.getElementById('userIdInput').value;
+            const output = document.getElementById('database-result');
+            output.innerHTML = 'Loading...';
+            
+            try {
+                const response = await fetch('php/test-my-channel.php?userId=' + userId);
+                const text = await response.text();
+                output.innerHTML = text;
+            } catch (e) {
+                output.innerHTML = '<span class="error">❌ Exception:</span>\n' + e.message;
+            }
+        }
+
+        // Auto-check localStorage on load
+        window.addEventListener('DOMContentLoaded', () => {
+            checkLocalStorage();
+        });
+    </script>
+</body>
+</html>

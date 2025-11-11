@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>🔍 Debug Banner DB</title>
+    <style>
+        body {
+            font-family: monospace;
+            background: #181818;
+            color: #fff;
+            padding: 20px;
+        }
+        pre {
+            background: #0d0d0d;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+        h1 { color: #ff0000; }
+        .success { color: #44ff44; }
+        .error { color: #ff4444; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Debug - Verificar Banner no Banco de Dados</h1>
+    <button onclick="checkDB()" style="background: #ff0000; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px;">
+        ▶️ Verificar Banco de Dados
+    </button>
+    <pre id="result">Clique no botão para verificar...</pre>
+
+    <script>
+        async function checkDB() {
+            const result = document.getElementById('result');
+            result.innerHTML = 'Carregando...\n';
+
+            try {
+                const userStr = localStorage.getItem('user');
+                if (!userStr) {
+                    result.innerHTML = '<span class="error">❌ Faça login primeiro!</span>';
+                    return;
+                }
+
+                const user = JSON.parse(userStr);
+                result.innerHTML = `Verificando para User ID: ${user.id}\n`;
+                result.innerHTML += `Username: ${user.username}\n\n`;
+
+                // Test get-channel-customization.php
+                const response = await fetch('php/get-channel-customization.php', {
+                    headers: { 'X-User-Id': user.id.toString() }
+                });
+
+                result.innerHTML += `HTTP Status: ${response.status}\n`;
+                result.innerHTML += `HTTP OK: ${response.ok}\n\n`;
+
+                const data = await response.json();
+                
+                result.innerHTML += '📦 RESPOSTA DA API:\n';
+                result.innerHTML += JSON.stringify(data, null, 2) + '\n\n';
+
+                if (data.success) {
+                    result.innerHTML += '<span class="success">✅ API respondeu com sucesso</span>\n\n';
+                    
+                    if (data.banner) {
+                        result.innerHTML += '<span class="success">✅ BANNER ENCONTRADO!</span>\n';
+                        result.innerHTML += `   URL: ${data.banner}\n\n`;
+                        
+                        // Test if file exists
+                        result.innerHTML += 'Testando se arquivo existe no servidor...\n';
+                        const fileTest = await fetch(data.banner);
+                        result.innerHTML += `   Status: ${fileTest.status}\n`;
+                        
+                        if (fileTest.ok) {
+                            result.innerHTML += '<span class="success">   ✅ ARQUIVO EXISTE!</span>\n';
+                        } else {
+                            result.innerHTML += '<span class="error">   ❌ ARQUIVO NÃO ENCONTRADO!</span>\n';
+                            result.innerHTML += '   O arquivo pode ter sido deletado da pasta uploads/\n';
+                        }
+                    } else {
+                        result.innerHTML += '<span class="error">⚠️ NENHUM BANNER CONFIGURADO</span>\n';
+                        result.innerHTML += 'Você precisa fazer upload de um banner em:\n';
+                        result.innerHTML += 'customize-channel.html\n';
+                    }
+
+                    if (data.watermark) {
+                        result.innerHTML += '\n<span class="success">✅ MARCA D\'ÁGUA ENCONTRADA!</span>\n';
+                        result.innerHTML += `   URL: ${data.watermark}\n`;
+                    } else {
+                        result.innerHTML += '\n<span class="error">⚠️ NENHUMA MARCA D\'ÁGUA CONFIGURADA</span>\n';
+                    }
+                } else {
+                    result.innerHTML += '<span class="error">❌ Erro: ' + data.message + '</span>\n';
+                }
+
+            } catch (error) {
+                result.innerHTML += `\n<span class="error">❌ ERRO: ${error.message}</span>\n`;
+                result.innerHTML += error.stack;
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', checkDB);
+    </script>
+</body>
+</html>

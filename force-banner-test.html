@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>🔥 Forçar Banner Aparecer</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/channel.css?v=3">
+    <style>
+        body {
+            background: #181818;
+            color: #fff;
+            padding: 20px;
+        }
+        .test-banner {
+            width: 100%;
+            height: 180px;
+            background: linear-gradient(135deg, #606060 0%, #303030 100%);
+            background-size: cover;
+            background-position: center;
+            margin: 20px 0;
+            border: 2px solid #ff0000;
+            position: relative;
+        }
+        .banner-info {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.8);
+            padding: 10px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        button {
+            background: #ff0000;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #cc0000;
+        }
+        pre {
+            background: #0d0d0d;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+        .success { color: #44ff44; }
+        .error { color: #ff4444; }
+    </style>
+</head>
+<body>
+    <h1>🔥 Forçar Banner Aparecer - Teste Visual</h1>
+    
+    <h2>1. Banner de Teste (deve ter borda vermelha)</h2>
+    <div class="test-banner" id="testBanner">
+        <div class="banner-info">Banner padrão (gradiente)</div>
+    </div>
+
+    <button onclick="loadBanner()">▶️ Carregar Banner do Banco</button>
+    <button onclick="testDirectURL()">▶️ Testar URL Direta</button>
+    <button onclick="inspectElement()">🔍 Inspecionar Elemento</button>
+
+    <h2>2. Console de Debug</h2>
+    <pre id="console">Aguardando ação...</pre>
+
+    <h2>3. Banner Real da Página (igual my-channel.html)</h2>
+    <div class="channel-banner" id="channelBanner"></div>
+
+    <script>
+        function log(msg) {
+            const consoleEl = document.getElementById('console');
+            consoleEl.textContent += msg + '\n';
+            console.log(msg);
+        }
+
+        async function loadBanner() {
+            const testBanner = document.getElementById('testBanner');
+            const channelBanner = document.getElementById('channelBanner');
+            const consoleEl = document.getElementById('console');
+            consoleEl.textContent = '';
+
+            try {
+                const userStr = localStorage.getItem('user');
+                if (!userStr) {
+                    log('❌ Faça login primeiro!');
+                    return;
+                }
+
+                const user = JSON.parse(userStr);
+                log('👤 User ID: ' + user.id);
+                log('👤 Username: ' + user.username);
+                log('');
+
+                log('📡 Fazendo fetch para API...');
+                const response = await fetch('php/get-channel-customization.php', {
+                    headers: { 'X-User-Id': user.id.toString() }
+                });
+
+                log('📡 Status: ' + response.status);
+                log('');
+
+                const data = await response.json();
+                log('📦 Resposta da API:');
+                log(JSON.stringify(data, null, 2));
+                log('');
+
+                if (data.success && data.banner && data.banner !== null && data.banner !== '') {
+                    log('✅ Banner encontrado: ' + data.banner);
+                    log('');
+
+                    const bannerUrl = data.banner + '?t=' + new Date().getTime();
+                    log('🔗 URL com cache-buster: ' + bannerUrl);
+                    log('');
+
+                    // Test 1: Apply to test banner
+                    log('🎨 Aplicando ao banner de teste...');
+                    testBanner.style.setProperty('background-image', `url('${bannerUrl}')`, 'important');
+                    testBanner.style.setProperty('background-size', 'cover', 'important');
+                    testBanner.style.setProperty('background-position', 'center', 'important');
+                    
+                    const infoDiv = testBanner.querySelector('.banner-info');
+                    infoDiv.textContent = 'Banner carregado: ' + data.banner;
+                    log('✅ Aplicado ao banner de teste!');
+                    log('');
+
+                    // Test 2: Apply to real channel banner
+                    log('🎨 Aplicando ao banner real (.channel-banner)...');
+                    channelBanner.style.setProperty('background-image', `url('${bannerUrl}')`, 'important');
+                    channelBanner.style.setProperty('background-size', 'cover', 'important');
+                    channelBanner.style.setProperty('background-position', 'center', 'important');
+                    channelBanner.style.setProperty('background-repeat', 'no-repeat', 'important');
+                    log('✅ Aplicado ao banner real!');
+                    log('');
+
+                    // Test 3: Check if image loads
+                    log('🖼️ Testando se imagem carrega...');
+                    const img = new Image();
+                    img.onload = function() {
+                        log('✅ IMAGEM CARREGADA COM SUCESSO!');
+                        log('   Dimensões: ' + img.width + 'x' + img.height);
+                    };
+                    img.onerror = function() {
+                        log('❌ ERRO AO CARREGAR IMAGEM!');
+                        log('   Verifique se o arquivo existe em: ' + data.banner);
+                    };
+                    img.src = bannerUrl;
+
+                } else {
+                    log('⚠️ Nenhum banner configurado');
+                    log('   data.success: ' + data.success);
+                    log('   data.banner: ' + data.banner);
+                }
+
+            } catch (error) {
+                log('❌ ERRO: ' + error.message);
+                log(error.stack);
+            }
+        }
+
+        async function testDirectURL() {
+            const consoleEl = document.getElementById('console');
+            consoleEl.textContent = '';
+
+            try {
+                const userStr = localStorage.getItem('user');
+                if (!userStr) {
+                    log('❌ Faça login primeiro!');
+                    return;
+                }
+
+                const user = JSON.parse(userStr);
+                const response = await fetch('php/get-channel-customization.php', {
+                    headers: { 'X-User-Id': user.id.toString() }
+                });
+
+                const data = await response.json();
+
+                if (data.banner) {
+                    log('📸 Testando URL direta do banner:');
+                    log('');
+                    log('URL: ' + data.banner);
+                    log('');
+                    log('Abrindo em nova aba...');
+                    window.open(data.banner, '_blank');
+                    log('');
+                    log('✅ Se a imagem abriu em nova aba, o arquivo existe!');
+                    log('❌ Se deu erro 404, o arquivo foi deletado!');
+                } else {
+                    log('⚠️ Nenhum banner no banco de dados');
+                }
+
+            } catch (error) {
+                log('❌ ERRO: ' + error.message);
+            }
+        }
+
+        function inspectElement() {
+            const channelBanner = document.getElementById('channelBanner');
+            const testBanner = document.getElementById('testBanner');
+            const consoleEl = document.getElementById('console');
+            consoleEl.textContent = '';
+
+            log('🔍 INSPEÇÃO DOS ELEMENTOS');
+            log('');
+            
+            log('=== BANNER DE TESTE ===');
+            log('Existe: ' + (testBanner ? 'SIM' : 'NÃO'));
+            if (testBanner) {
+                log('Largura: ' + testBanner.offsetWidth + 'px');
+                log('Altura: ' + testBanner.offsetHeight + 'px');
+                log('Display: ' + window.getComputedStyle(testBanner).display);
+                log('Visibility: ' + window.getComputedStyle(testBanner).visibility);
+                log('Background-image: ' + window.getComputedStyle(testBanner).backgroundImage);
+            }
+            log('');
+
+            log('=== BANNER REAL (.channel-banner) ===');
+            log('Existe: ' + (channelBanner ? 'SIM' : 'NÃO'));
+            if (channelBanner) {
+                log('Largura: ' + channelBanner.offsetWidth + 'px');
+                log('Altura: ' + channelBanner.offsetHeight + 'px');
+                log('Display: ' + window.getComputedStyle(channelBanner).display);
+                log('Visibility: ' + window.getComputedStyle(channelBanner).visibility);
+                log('Background-image: ' + window.getComputedStyle(channelBanner).backgroundImage);
+                log('Background-size: ' + window.getComputedStyle(channelBanner).backgroundSize);
+                log('Background-position: ' + window.getComputedStyle(channelBanner).backgroundPosition);
+            }
+            log('');
+
+            log('💡 Se altura = 0, o CSS não está sendo aplicado!');
+            log('💡 Se background-image = "none", o banner não foi aplicado!');
+        }
+
+        // Auto-load on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            log('🚀 Página carregada');
+            log('Clique em "Carregar Banner do Banco" para testar');
+            log('');
+        });
+    </script>
+</body>
+</html>

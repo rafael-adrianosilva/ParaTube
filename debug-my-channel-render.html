@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 Diagnóstico My Channel</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #181818;
+            color: #fff;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #ff0000;
+            margin-bottom: 20px;
+        }
+        .test-box {
+            background: #212121;
+            border: 2px solid #303030;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+        .test-box h2 {
+            color: #fff;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .result {
+            background: #0d0d0d;
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+        .success { color: #44ff44; }
+        .error { color: #ff4444; }
+        .warning { color: #ffaa44; }
+        .info { color: #44aaff; }
+        button {
+            background: #ff0000;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            background: #cc0000;
+        }
+        .status-item {
+            padding: 8px 12px;
+            margin: 4px 0;
+            border-radius: 6px;
+            border-left: 4px solid;
+        }
+        .status-ok { background: #113311; border-color: #00ff00; }
+        .status-fail { background: #331111; border-color: #ff0000; }
+        .status-info { background: #111133; border-color: #4444ff; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Diagnóstico Completo - My Channel</h1>
+        <p style="color: #aaa;">Identifica exatamente por que os vídeos não aparecem</p>
+
+        <!-- Test 1: LocalStorage -->
+        <div class="test-box">
+            <h2><span>💾</span> 1. LocalStorage User</h2>
+            <button onclick="testLocalStorage()">▶️ Testar</button>
+            <div class="result" id="localStorageResult"></div>
+        </div>
+
+        <!-- Test 2: DOM Elements -->
+        <div class="test-box">
+            <h2><span>🎯</span> 2. Elementos DOM</h2>
+            <button onclick="testDOMElements()">▶️ Testar</button>
+            <div class="result" id="domResult"></div>
+        </div>
+
+        <!-- Test 3: API Fetch -->
+        <div class="test-box">
+            <h2><span>🔌</span> 3. API Fetch</h2>
+            <button onclick="testAPIFetch()">▶️ Testar</button>
+            <div class="result" id="apiResult"></div>
+        </div>
+
+        <!-- Test 4: JavaScript Functions -->
+        <div class="test-box">
+            <h2><span>⚙️</span> 4. Funções JavaScript</h2>
+            <button onclick="testJavaScriptFunctions()">▶️ Testar</button>
+            <div class="result" id="jsResult"></div>
+        </div>
+
+        <!-- Test 5: Manual Render -->
+        <div class="test-box">
+            <h2><span>🎨</span> 5. Renderização Manual</h2>
+            <button onclick="testManualRender()">▶️ Renderizar Vídeos</button>
+            <div class="result" id="renderResult"></div>
+            <div id="manualVideoGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-top: 16px;"></div>
+        </div>
+    </div>
+
+    <script>
+        function log(type, message) {
+            const colors = {
+                success: '#44ff44',
+                error: '#ff4444',
+                warning: '#ffaa44',
+                info: '#44aaff'
+            };
+            console.log(`%c${message}`, `color: ${colors[type] || '#fff'}`);
+        }
+
+        function testLocalStorage() {
+            const result = document.getElementById('localStorageResult');
+            let output = '';
+
+            try {
+                const userStr = localStorage.getItem('user');
+                
+                if (!userStr) {
+                    output = '<span class="error">❌ ERRO: Nenhum usuário no localStorage</span>\n';
+                    output += '<span class="warning">⚠️ Você precisa fazer login primeiro!</span>\n';
+                    output += '<span class="info">💡 Vá para login.html e faça login</span>';
+                    result.innerHTML = output;
+                    return;
+                }
+
+                const user = JSON.parse(userStr);
+                output = '<span class="success">✅ Usuário encontrado no localStorage</span>\n\n';
+                output += JSON.stringify(user, null, 2);
+                
+                result.innerHTML = output;
+                
+            } catch (error) {
+                output = '<span class="error">❌ ERRO ao ler localStorage: ' + error.message + '</span>';
+                result.innerHTML = output;
+            }
+        }
+
+        function testDOMElements() {
+            const result = document.getElementById('domResult');
+            let output = '';
+
+            const elements = {
+                'allVideosGrid': document.getElementById('allVideosGrid'),
+                'allShortsGrid': document.getElementById('allShortsGrid'),
+                'shortsGrid': document.getElementById('shortsGrid'),
+                'videosScroll': document.getElementById('videosScroll'),
+                'shortsSection': document.getElementById('shortsSection'),
+                'videosSection': document.getElementById('videosSection')
+            };
+
+            output = '<span class="info">📋 Verificando elementos DOM...</span>\n\n';
+            
+            let allFound = true;
+            for (const [id, element] of Object.entries(elements)) {
+                if (element) {
+                    output += `<span class="success">✅ ${id} encontrado</span>\n`;
+                } else {
+                    output += `<span class="error">❌ ${id} NÃO encontrado!</span>\n`;
+                    allFound = false;
+                }
+            }
+
+            if (allFound) {
+                output += '\n<span class="success">✅ Todos os elementos DOM estão presentes!</span>';
+            } else {
+                output += '\n<span class="error">❌ Alguns elementos DOM estão faltando!</span>';
+                output += '\n<span class="warning">⚠️ Verifique o HTML da página</span>';
+            }
+
+            result.innerHTML = output;
+        }
+
+        async function testAPIFetch() {
+            const result = document.getElementById('apiResult');
+            result.innerHTML = '<span class="info">⏳ Carregando...</span>';
+
+            try {
+                const userStr = localStorage.getItem('user');
+                if (!userStr) {
+                    result.innerHTML = '<span class="error">❌ Faça login primeiro!</span>';
+                    return;
+                }
+
+                const user = JSON.parse(userStr);
+                
+                const response = await fetch('php/get-user-videos.php', {
+                    headers: { 'X-User-Id': user.id.toString() }
+                });
+
+                let output = '';
+                output += `<span class="info">📡 HTTP Status: ${response.status}</span>\n\n`;
+
+                if (!response.ok) {
+                    output += `<span class="error">❌ Resposta HTTP não OK: ${response.status}</span>`;
+                    result.innerHTML = output;
+                    return;
+                }
+
+                const videos = await response.json();
+
+                output += `<span class="success">✅ API respondeu com sucesso</span>\n`;
+                output += `<span class="info">📊 Tipo de resposta: ${Array.isArray(videos) ? 'Array' : typeof videos}</span>\n`;
+                output += `<span class="info">📦 Total de itens: ${Array.isArray(videos) ? videos.length : 'N/A'}</span>\n\n`;
+
+                if (Array.isArray(videos) && videos.length > 0) {
+                    output += `<span class="success">✅ ${videos.length} vídeo(s) encontrado(s)!</span>\n\n`;
+                    output += '<span class="info">📋 Lista de vídeos:</span>\n';
+                    videos.forEach((v, i) => {
+                        output += `  ${i + 1}. "${v.title}" (ID: ${v.id}, Duração: ${v.duration})\n`;
+                    });
+                } else if (Array.isArray(videos) && videos.length === 0) {
+                    output += '<span class="warning">⚠️ Array vazio - nenhum vídeo no banco de dados</span>';
+                } else {
+                    output += '<span class="error">❌ Resposta não é um array válido</span>\n\n';
+                    output += JSON.stringify(videos, null, 2);
+                }
+
+                result.innerHTML = output;
+
+                // Store for manual render test
+                window.testVideos = videos;
+
+            } catch (error) {
+                result.innerHTML = `<span class="error">❌ ERRO: ${error.message}</span>\n\n${error.stack}`;
+            }
+        }
+
+        function testJavaScriptFunctions() {
+            const result = document.getElementById('jsResult');
+            let output = '<span class="info">🔧 Verificando funções JavaScript...</span>\n\n';
+
+            const functions = [
+                'loadAllVideos',
+                'displayAllVideosGrid',
+                'displayShortsSection',
+                'parseDuration',
+                'formatViews',
+                'formatDate'
+            ];
+
+            let allFound = true;
+            for (const funcName of functions) {
+                if (typeof window[funcName] === 'function') {
+                    output += `<span class="success">✅ ${funcName}() existe</span>\n`;
+                } else {
+                    output += `<span class="error">❌ ${funcName}() NÃO existe!</span>\n`;
+                    allFound = false;
+                }
+            }
+
+            if (allFound) {
+                output += '\n<span class="success">✅ Todas as funções necessárias existem!</span>';
+            } else {
+                output += '\n<span class="error">❌ Algumas funções estão faltando!</span>';
+                output += '\n<span class="warning">⚠️ Verifique se my-channel.js está carregado</span>';
+            }
+
+            result.innerHTML = output;
+        }
+
+        function testManualRender() {
+            const result = document.getElementById('renderResult');
+            const grid = document.getElementById('manualVideoGrid');
+
+            if (!window.testVideos || !Array.isArray(window.testVideos)) {
+                result.innerHTML = '<span class="warning">⚠️ Execute o teste de API primeiro!</span>';
+                return;
+            }
+
+            const videos = window.testVideos;
+
+            if (videos.length === 0) {
+                result.innerHTML = '<span class="warning">⚠️ Nenhum vídeo para renderizar</span>';
+                grid.innerHTML = '<div style="color: #aaa; text-align: center; padding: 40px;">Nenhum vídeo disponível</div>';
+                return;
+            }
+
+            result.innerHTML = `<span class="success">✅ Renderizando ${videos.length} vídeo(s)...</span>`;
+
+            grid.innerHTML = videos.map(video => `
+                <div style="background: #212121; border-radius: 12px; overflow: hidden; transition: transform 0.2s;">
+                    <div style="position: relative; width: 100%; padding-top: 56.25%; background: #000;">
+                        <img src="${video.thumbnail || 'https://via.placeholder.com/320x180'}" 
+                             alt="${video.title}"
+                             style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;">
+                        <div style="position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.8); color: white; padding: 2px 6px; border-radius: 4px; font-size: 12px;">
+                            ${video.duration || '0:00'}
+                        </div>
+                    </div>
+                    <div style="padding: 12px;">
+                        <h3 style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600; color: #fff; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
+                            ${video.title}
+                        </h3>
+                        <p style="margin: 0; font-size: 12px; color: #aaa;">
+                            ${video.views || 0} visualizações
+                        </p>
+                    </div>
+                </div>
+            `).join('');
+
+            result.innerHTML = `<span class="success">✅ ${videos.length} vídeo(s) renderizado(s) com sucesso!</span>`;
+        }
+
+        // Auto-run tests on load
+        window.addEventListener('DOMContentLoaded', () => {
+            console.log('🔍 Página de diagnóstico carregada');
+            testLocalStorage();
+        });
+    </script>
+</body>
+</html>
