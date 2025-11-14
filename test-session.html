@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Session</title>
+</head>
+<body>
+    <h1>Teste de Sessão</h1>
+    <button onclick="testSession()">Testar Sessão</button>
+    <button onclick="doLogin()">Fazer Login (user1/senha123)</button>
+    <pre id="result"></pre>
+
+    <script>
+        async function testSession() {
+            const response = await fetch('php/check-session.php');
+            const data = await response.json();
+            document.getElementById('result').textContent = JSON.stringify(data, null, 2);
+        }
+
+        async function doLogin() {
+            const response = await fetch('php/login.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: 'user1@example.com',
+                    password: 'senha123'
+                })
+            });
+            const data = await response.json();
+            document.getElementById('result').textContent = 'Login: ' + JSON.stringify(data, null, 2);
+            
+            if (data.success) {
+                setTimeout(testSession, 500);
+            }
+        }
+
+        // Test on load
+        testSession();
+    </script>
+</body>
+</html>

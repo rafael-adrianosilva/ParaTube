@@ -1,0 +1,528 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conquistas - ParaTube</title>
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/advanced-features.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .achievements-page {
+            padding: 24px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .achievements-page-header {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            margin-bottom: 40px;
+            padding: 32px;
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 165, 0, 0.1));
+            border-radius: 16px;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .trophy-icon {
+            font-size: 64px;
+            color: #FFD700;
+            text-shadow: 0 4px 12px rgba(255, 215, 0, 0.5);
+        }
+
+        .achievements-page-header h1 {
+            font-size: 36px;
+            margin: 0;
+            color: var(--text-primary);
+        }
+
+        .achievements-page-header p {
+            margin: 8px 0 0 0;
+            color: var(--text-secondary);
+            font-size: 16px;
+        }
+
+        .achievements-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            padding: 24px;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .stat-card .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--accent-color);
+            margin-bottom: 8px;
+        }
+
+        .stat-card .stat-label {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .achievements-filters {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            border: 2px solid var(--border-color);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .filter-btn:hover {
+            border-color: var(--accent-color);
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .filter-btn.active {
+            border-color: var(--accent-color);
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .achievements-section {
+            margin-bottom: 40px;
+        }
+
+        .achievements-section h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .achievements-grid-full {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .achievement-card-full {
+            padding: 24px;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            border: 2px solid var(--border-color);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .achievement-card-full.unlocked {
+            border-color: #FFD700;
+            box-shadow: 0 4px 20px rgba(255, 215, 0, 0.2);
+        }
+
+        .achievement-card-full.unlocked::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #FFD700, #FFA500);
+        }
+
+        .achievement-card-full:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        }
+
+        .achievement-icon-full {
+            font-size: 48px;
+            margin-bottom: 16px;
+            display: block;
+        }
+
+        .achievement-card-full.locked .achievement-icon-full {
+            filter: grayscale(100%);
+            opacity: 0.4;
+        }
+
+        .achievement-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        .achievement-description {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
+        .achievement-progress {
+            margin-top: 12px;
+        }
+
+        .progress-bar-achievement {
+            height: 8px;
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 6px;
+        }
+
+        .progress-fill-achievement {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-color), #00cc66);
+            transition: width 0.3s;
+        }
+
+        .progress-text {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .unlocked-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            background: rgba(255, 215, 0, 0.2);
+            border-radius: 12px;
+            font-size: 12px;
+            color: #FFD700;
+            font-weight: 600;
+        }
+
+        .unlocked-date {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 8px;
+        }
+
+        [data-theme="dark"] .achievement-card-full {
+            background: #1a1a1a;
+        }
+
+        [data-theme="dark"] .stat-card {
+            background: #1a1a1a;
+        }
+    </style>
+</head>
+<body class="index-page">
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <button class="menu-btn" id="menuBtn">
+                <i class="fas fa-bars"></i>
+            </button>
+            <a href="index.html" class="logo">
+                <img src="assets/logo.svg" alt="ParaTube" style="width: 32px; height: 32px; margin-right: 5px;">
+                <span>ParaTube</span>
+            </a>
+        </div>
+        
+        <div class="header-center">
+            <form class="search-form" id="searchForm">
+                <input type="text" placeholder="Pesquisar" id="searchInput">
+                <button type="submit" class="search-btn">
+                    <i class="fas fa-search"></i>
+                </button>
+            </form>
+        </div>
+        
+        <div class="header-right">            <button class="upload-btn" id="uploadBtn" title="Criar vídeo">
+                <i class="fas fa-video"></i>
+            </button>
+            <button class="notifications-btn" id="notificationsBtn" title="Notificações">
+                <i class="fas fa-bell"></i>
+                <span class="notification-badge" id="notificationBadge" style="display: none;">0</span>
+            </button>
+            <div class="user-menu" id="userMenu">
+                <button class="user-avatar" id="userAvatar" title="Conta">
+                    <i class="fas fa-user-circle"></i>
+                </button>
+                <div class="dropdown-menu" id="dropdownMenu">
+                    <a href="login.html" class="login-link">
+                        <i class="fas fa-sign-in-alt"></i> Fazer Login
+                    </a>
+                    <a href="register.html">
+                        <i class="fas fa-user-plus"></i> Cadastrar
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <nav class="sidebar-nav">
+            <a href="index.html" class="nav-item">
+                <i class="fas fa-home"></i>
+                <span>Início</span>
+            </a>
+            <a href="trending.html" class="nav-item">
+                <i class="fas fa-fire"></i>
+                <span>Em alta</span>
+            </a>
+            <a href="subscriptions.html" class="nav-item">
+                <i class="fas fa-play-circle"></i>
+                <span>Inscrições</span>
+            </a>
+            <hr>
+            <a href="my-channel.html" class="nav-item" id="myChannelLink" style="display: none;">
+                <i class="fas fa-user"></i>
+                <span>Seu canal</span>
+            </a>
+            <a href="history.html" class="nav-item">
+                <i class="fas fa-history"></i>
+                <span>Histórico</span>
+            </a>
+            <a href="watch-later.html" class="nav-item">
+                <i class="fas fa-clock"></i>
+                <span>Assistir mais tarde</span>
+            </a>
+            <a href="achievements.html" class="nav-item active">
+                <i class="fas fa-trophy"></i>
+                <span>Conquistas</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content achievements-page">
+        <div class="achievements-page-header">
+            <i class="fas fa-trophy trophy-icon"></i>
+            <div>
+                <h1>Conquistas</h1>
+                <p>Complete desafios e desbloqueie conquistas especiais</p>
+            </div>
+        </div>
+
+        <div class="achievements-stats">
+            <div class="stat-card">
+                <div class="stat-value" id="totalUnlocked">0</div>
+                <div class="stat-label">Desbloqueadas</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalAchievements">22</div>
+                <div class="stat-label">Total</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="completionPercentage">0%</div>
+                <div class="stat-label">Progresso</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="recentUnlocked">0</div>
+                <div class="stat-label">Novas (7 dias)</div>
+            </div>
+        </div>
+
+        <div class="achievements-filters">
+            <button class="filter-btn active" data-filter="all">Todas</button>
+            <button class="filter-btn" data-filter="unlocked">Desbloqueadas</button>
+            <button class="filter-btn" data-filter="locked">Bloqueadas</button>
+        </div>
+
+        <div class="achievements-section">
+            <h2><i class="fas fa-star"></i> Todas as Conquistas</h2>
+            <div class="achievements-grid-full" id="achievementsGrid">
+                <!-- Achievements will be loaded here -->
+            </div>
+        </div>
+
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <i class="fas fa-trophy" style="font-size: 80px; color: #999; margin-bottom: 20px;"></i>
+            <h2>Faça login para ver suas conquistas</h2>
+            <p>Entre para começar a desbloquear conquistas</p>
+        </div>
+    </main>
+
+    <script src="js/ga-tracking.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/notifications.js"></script>
+    <script src="js/achievements.js"></script>
+    <script>
+        // Achievements page logic
+        document.addEventListener('DOMContentLoaded', async () => {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            if (!user.id) {
+                document.getElementById('emptyState').style.display = 'flex';
+                document.querySelector('.achievements-stats').style.display = 'none';
+                document.querySelector('.achievements-filters').style.display = 'none';
+                document.querySelector('.achievements-section').style.display = 'none';
+                return;
+            }
+
+            await loadAchievementsPage();
+            setupFilters();
+        });
+
+        async function loadAchievementsPage() {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            console.log('🔍 Loading achievements for user:', user);
+            
+            if (!user.id) {
+                console.error('❌ No user ID found! User must be logged in.');
+                // Use user_id = 1 for testing
+                user.id = 1;
+                console.log('⚠️ Using default user_id = 1 for testing');
+            }
+            
+            try {
+                const url = 'php/get-achievements.php?user_id=' + user.id;
+                console.log('🌐 Fetching from:', url);
+                
+                const response = await fetch(url, {
+                    headers: { 'X-User-Id': user.id.toString() }
+                });
+                
+                console.log('📡 Response status:', response.status);
+                const data = await response.json();
+                console.log('📦 Achievements data:', data);
+
+                if (data.success) {
+                    console.log('All achievements:', data.achievements);
+                    console.log('User achievements:', data.userAchievements);
+                    displayAchievements(data.achievements, data.userAchievements);
+                    updateStats(data.userAchievements);
+                    // Update total achievements count
+                    document.getElementById('totalAchievements').textContent = data.achievements.length;
+                } else {
+                    console.error('Error in response:', data.message);
+                }
+            } catch (error) {
+                console.error('Error loading achievements:', error);
+            }
+        }
+
+        function displayAchievements(allAchievements, userAchievements) {
+            const grid = document.getElementById('achievementsGrid');
+            console.log('🎨 Displaying achievements. Grid element:', grid);
+            console.log('🏆 Total achievements to display:', allAchievements?.length || 0);
+            
+            if (!grid) {
+                console.error('❌ Grid element not found!');
+                alert('ERRO: Grid element not found!');
+                return;
+            }
+            
+            if (!allAchievements || allAchievements.length === 0) {
+                console.error('❌ No achievements to display!');
+                grid.innerHTML = '<p style="text-align:center;color:var(--text-secondary);padding:40px;">Nenhuma conquista encontrada.</p>';
+                alert('ERRO: No achievements data!');
+                return;
+            }
+            
+            const userAchMap = {};
+            
+            userAchievements.forEach(ua => {
+                userAchMap[ua.achievement_id] = ua;
+            });
+
+            const html = allAchievements.map(achievement => {
+                const userAch = userAchMap[achievement.id];
+                const isUnlocked = !!userAch;
+                const progress = userAch?.progress || 0;
+                const target = achievement.target_value;
+                const progressPercent = Math.min((progress / target) * 100, 100);
+
+                return `
+                    <div class="achievement-card-full ${isUnlocked ? 'unlocked' : 'locked'}" data-status="${isUnlocked ? 'unlocked' : 'locked'}">
+                        <span class="achievement-icon-full"><i class="fas ${achievement.icon}"></i></span>
+                        <div class="achievement-title">${achievement.name}</div>
+                        <div class="achievement-description">${achievement.description}</div>
+                        
+                        ${isUnlocked ? `
+                            <span class="unlocked-badge">
+                                <i class="fas fa-check-circle"></i>
+                                Desbloqueada
+                            </span>
+                            <div class="unlocked-date">
+                                ${formatDate(userAch.unlocked_at)}
+                            </div>
+                        ` : `
+                            <div class="achievement-progress">
+                                <div class="progress-bar-achievement">
+                                    <div class="progress-fill-achievement" style="width: ${progressPercent}%"></div>
+                                </div>
+                                <div class="progress-text">${progress} / ${target}</div>
+                            </div>
+                        `}
+                    </div>
+                `;
+            }).join('');
+            
+            console.log('Generated HTML length:', html.length);
+            grid.innerHTML = html;
+            console.log('Grid updated. Children count:', grid.children.length);
+        }
+
+        function updateStats(userAchievements) {
+            const unlocked = userAchievements.filter(a => a.unlocked_at).length;
+            const total = 22;
+            const percentage = Math.round((unlocked / total) * 100);
+            
+            const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+            const recent = userAchievements.filter(a => {
+                return a.unlocked_at && new Date(a.unlocked_at) > weekAgo;
+            }).length;
+
+            document.getElementById('totalUnlocked').textContent = unlocked;
+            document.getElementById('completionPercentage').textContent = percentage + '%';
+            document.getElementById('recentUnlocked').textContent = recent;
+        }
+
+        function setupFilters() {
+            const filters = document.querySelectorAll('.filter-btn');
+            filters.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    filters.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    
+                    const filter = btn.dataset.filter;
+                    const cards = document.querySelectorAll('.achievement-card-full');
+                    
+                    cards.forEach(card => {
+                        if (filter === 'all') {
+                            card.style.display = 'block';
+                        } else {
+                            card.style.display = card.dataset.status === filter ? 'block' : 'none';
+                        }
+                    });
+                });
+            });
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diff = now - date;
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+            if (days === 0) return 'Desbloqueada hoje';
+            if (days === 1) return 'Desbloqueada ontem';
+            if (days < 7) return `Desbloqueada há ${days} dias`;
+            if (days < 30) return `Desbloqueada há ${Math.floor(days / 7)} semanas`;
+            return `Desbloqueada em ${date.toLocaleDateString('pt-BR')}`;
+        }
+    </script>
+</body>
+</html>

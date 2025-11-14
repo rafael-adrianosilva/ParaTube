@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Histórico - ParaTube</title>
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/advanced-features.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="index-page">
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <button class="menu-btn" id="menuBtn">
+                <i class="fas fa-bars"></i>
+            </button>
+            <a href="index.html" class="logo">
+                <img src="assets/logo.svg" alt="ParaTube" style="width: 32px; height: 32px; margin-right: 5px;">
+                <span>ParaTube</span>
+            </a>
+        </div>
+        
+        <div class="header-center">
+            <form class="search-form" id="searchForm">
+                <input type="text" placeholder="Pesquisar" id="searchInput">
+                <button type="submit" class="search-btn">
+                    <i class="fas fa-search"></i>
+                </button>
+            </form>
+        </div>
+        
+        <div class="header-right">
+            <button class="theme-toggle" id="themeToggle" title="Aparência">
+                <i class="fas fa-moon"></i>
+            </button>
+            <button class="upload-btn" id="uploadBtn" title="Criar vídeo">
+                <i class="fas fa-video"></i>
+            </button>
+            <button class="notifications-btn" id="notificationsBtn" title="Notificações">
+                <i class="fas fa-bell"></i>
+                <span class="notification-badge" id="notificationBadge" style="display: none;">0</span>
+            </button>
+            <div class="user-menu" id="userMenu">
+                <button class="user-avatar" id="userAvatar" title="Conta">
+                    <i class="fas fa-user-circle"></i>
+                </button>
+                <div class="dropdown-menu" id="dropdownMenu">
+                    <a href="login.html" class="login-link">
+                        <i class="fas fa-sign-in-alt"></i> Fazer Login
+                    </a>
+                    <a href="register.html">
+                        <i class="fas fa-user-plus"></i> Cadastrar
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <nav class="sidebar-nav">
+            <a href="index.html" class="nav-item">
+                <i class="fas fa-home"></i>
+                <span>Início</span>
+            </a>
+            <a href="trending.html" class="nav-item">
+                <i class="fas fa-fire"></i>
+                <span>Em alta</span>
+            </a>
+            <a href="subscriptions.html" class="nav-item">
+                <i class="fas fa-play-circle"></i>
+                <span>Inscrições</span>
+            </a>
+            <hr>
+            <a href="my-channel.html" class="nav-item" id="myChannelLink" style="display: none;">
+                <i class="fas fa-user"></i>
+                <span>Seu canal</span>
+            </a>
+            <a href="history.html" class="nav-item active">
+                <i class="fas fa-history"></i>
+                <span>Histórico</span>
+            </a>
+            <a href="watch-later.html" class="nav-item">
+                <i class="fas fa-clock"></i>
+                <span>Assistir mais tarde</span>
+            </a>
+            <a href="#" class="nav-item" id="favoritesLink" style="display: none;">
+                <i class="fas fa-thumbs-up"></i>
+                <span>Vídeos com "Gostei"</span>
+            </a>
+            <hr>
+            <div class="sidebar-section-title">Inscrições</div>
+            <div id="subscriptionsNav">
+                <!-- Subscriptions will be loaded here -->
+            </div>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content" id="mainContent">
+        <div class="history-header">
+            <div class="history-title-section">
+                <i class="fas fa-history" style="font-size: 48px; color: #065fd4; margin-right: 20px;"></i>
+                <div>
+                    <h1>Histórico</h1>
+                    <p class="history-subtitle">Seus vídeos assistidos</p>
+                </div>
+            </div>
+            <div class="history-actions">
+                <div class="search-history-container">
+                    <input type="text" id="searchHistory" placeholder="Pesquisar no histórico" class="search-history-input">
+                    <i class="fas fa-search search-history-icon"></i>
+                </div>
+                <button class="action-button secondary" id="clearHistoryBtn">
+                    <i class="fas fa-trash"></i> Limpar todo o histórico
+                </button>
+            </div>
+        </div>
+
+        <div id="historyContent">
+            <!-- History groups will be loaded here -->
+        </div>
+
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <i class="fas fa-history" style="font-size: 80px; color: #999; margin-bottom: 20px;"></i>
+            <h2>Sem histórico</h2>
+            <p>Os vídeos que você assistir aparecerão aqui</p>
+        </div>
+
+        <div id="loadingState" class="loading-state" style="display: flex;">
+            <i class="fas fa-circle-notch fa-spin" style="font-size: 48px; color: #065fd4;"></i>
+        </div>
+    </main>
+
+    <style>
+        .history-header {
+            padding: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .history-title-section {
+            display: flex;
+            align-items: center;
+        }
+
+        .history-title-section h1 {
+            font-size: 32px;
+            margin: 0;
+        }
+
+        .history-subtitle {
+            color: #606060;
+            margin-top: 4px;
+        }
+
+        .history-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .search-history-container {
+            position: relative;
+        }
+
+        .search-history-input {
+            padding: 8px 36px 8px 12px;
+            border: 1px solid #ccc;
+            border-radius: 20px;
+            font-size: 14px;
+            width: 250px;
+            outline: none;
+        }
+
+        .search-history-input:focus {
+            border-color: #065fd4;
+        }
+
+        .search-history-icon {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #606060;
+        }
+
+        .action-button {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 18px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background-color: #065fd4;
+            color: white;
+            transition: background-color 0.2s;
+        }
+
+        .action-button:hover {
+            background-color: #0553b8;
+        }
+
+        .action-button.secondary {
+            background-color: transparent;
+            color: #065fd4;
+            border: 1px solid #065fd4;
+        }
+
+        .action-button.secondary:hover {
+            background-color: rgba(6, 95, 212, 0.1);
+        }
+
+        .history-group {
+            margin-bottom: 32px;
+            padding: 0 24px;
+        }
+
+        .history-group-title {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 16px;
+            color: #030303;
+        }
+
+        .history-videos {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 16px;
+        }
+
+        .empty-state, .loading-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 80px 20px;
+            text-align: center;
+        }
+
+        .empty-state h2 {
+            margin: 0 0 8px 0;
+            color: #030303;
+        }
+
+        .empty-state p {
+            color: #606060;
+            margin: 0;
+        }
+
+        [data-theme="dark"] .history-subtitle,
+        [data-theme="dark"] .empty-state p,
+        [data-theme="dark"] .search-history-icon {
+            color: #aaa;
+        }
+
+        [data-theme="dark"] .empty-state h2,
+        [data-theme="dark"] .history-group-title {
+            color: #fff;
+        }
+
+        [data-theme="dark"] .search-history-input {
+            background-color: #222;
+            border-color: #444;
+            color: #fff;
+        }
+
+        [data-theme="dark"] .action-button.secondary {
+            color: #3ea6ff;
+            border-color: #3ea6ff;
+        }
+
+        [data-theme="dark"] .action-button.secondary:hover {
+            background-color: rgba(62, 166, 255, 0.1);
+        }
+    </style>
+
+    <!-- Scripts -->
+    <script src="js/ga-tracking.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/notifications.js"></script>
+    <script src="js/achievements.js"></script>
+    <script>
+        // History Page Logic
+        let currentUser = null;
+        let allHistoryVideos = [];
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Check authentication
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            if (!user.id) {
+                window.location.href = 'login.html';
+                return;
+            }
+            currentUser = user;
+
+            await loadHistory();
+            setupEventListeners();
+        });
+
+        async function loadHistory() {
+            const loadingState = document.getElementById('loadingState');
+            const emptyState = document.getElementById('emptyState');
+            const historyContent = document.getElementById('historyContent');
+
+            try {
+                const response = await fetch(`php/get-watch-history.php?user_id=${currentUser.id}`);
+                const data = await response.json();
+
+                loadingState.style.display = 'none';
+
+                if (!data.success || !data.history || data.history.length === 0) {
+                    emptyState.style.display = 'flex';
+                    return;
+                }
+
+                allHistoryVideos = data.history;
+                displayHistory(allHistoryVideos);
+
+            } catch (error) {
+                console.error('Error loading history:', error);
+                loadingState.style.display = 'none';
+                emptyState.style.display = 'flex';
+            }
+        }
+
+        function displayHistory(videos) {
+            const historyContent = document.getElementById('historyContent');
+            
+            if (videos.length === 0) {
+                document.getElementById('emptyState').style.display = 'flex';
+                historyContent.innerHTML = '';
+                return;
+            }
+
+            document.getElementById('emptyState').style.display = 'none';
+
+            // Group videos by date
+            const groups = groupVideosByDate(videos);
+            
+            historyContent.innerHTML = Object.entries(groups).map(([dateLabel, videos]) => `
+                <div class="history-group">
+                    <h2 class="history-group-title">${dateLabel}</h2>
+                    <div class="history-videos">
+                        ${videos.map(video => createVideoCard(video)).join('')}
+                    </div>
+                </div>
+            `).join('');
+
+            // Setup remove buttons
+            document.querySelectorAll('.remove-history-btn').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    const historyId = btn.dataset.historyId;
+                    await removeFromHistory(historyId);
+                });
+            });
+        }
+
+        function groupVideosByDate(videos) {
+            const groups = {};
+            const now = new Date();
+            now.setHours(0, 0, 0, 0);
+
+            const today = new Date(now);
+            const yesterday = new Date(now);
+            yesterday.setDate(yesterday.getDate() - 1);
+            const thisWeek = new Date(now);
+            thisWeek.setDate(thisWeek.getDate() - 7);
+            const thisMonth = new Date(now);
+            thisMonth.setMonth(thisMonth.getMonth() - 1);
+
+            videos.forEach(video => {
+                const watchDate = new Date(video.watched_at);
+                watchDate.setHours(0, 0, 0, 0);
+                
+                let label;
+                if (watchDate.getTime() === today.getTime()) {
+                    label = 'Hoje';
+                } else if (watchDate.getTime() === yesterday.getTime()) {
+                    label = 'Ontem';
+                } else if (watchDate > thisWeek) {
+                    label = 'Esta semana';
+                } else if (watchDate > thisMonth) {
+                    label = 'Este mês';
+                } else {
+                    const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+                                      'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+                    label = monthNames[watchDate.getMonth()] + ' ' + watchDate.getFullYear();
+                }
+
+                if (!groups[label]) groups[label] = [];
+                groups[label].push(video);
+            });
+
+            return groups;
+        }
+
+        function createVideoCard(video) {
+            return `
+                <div class="video-card" data-history-id="${video.history_id}">
+                    <a href="watch.html?v=${video.id}" class="video-thumbnail">
+                        <img src="${video.thumbnail_url || 'assets/default-thumbnail.jpg'}" alt="${video.title}">
+                        <span class="video-duration">${video.duration || '0:00'}</span>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-details">
+                            <a href="watch.html?v=${video.id}" class="video-title">${video.title}</a>
+                            <a href="channel.html?id=${video.user_id}" class="video-channel">${video.channel_name}</a>
+                            <div class="video-metadata">
+                                <span>${video.views || 0} visualizações</span>
+                                <span>•</span>
+                                <span>${formatDate(video.created_at)}</span>
+                            </div>
+                        </div>
+                        <button class="video-menu-btn remove-history-btn" data-history-id="${video.history_id}" title="Remover do histórico">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diff = now - date;
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+            if (days === 0) return 'Hoje';
+            if (days === 1) return 'Ontem';
+            if (days < 7) return `há ${days} dias`;
+            if (days < 30) return `há ${Math.floor(days / 7)} semanas`;
+            if (days < 365) return `há ${Math.floor(days / 30)} meses`;
+            return `há ${Math.floor(days / 365)} anos`;
+        }
+
+        async function removeFromHistory(historyId) {
+            try {
+                const response = await fetch('php/remove-watch-history.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-User-Id': currentUser.id.toString()
+                    },
+                    body: JSON.stringify({ history_id: historyId })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    // Remove from local array
+                    allHistoryVideos = allHistoryVideos.filter(v => v.history_id !== parseInt(historyId));
+                    displayHistory(allHistoryVideos);
+
+                    if (typeof showNotification === 'function') {
+                        showNotification('Removido do histórico');
+                    }
+                }
+            } catch (error) {
+                console.error('Error removing from history:', error);
+            }
+        }
+
+        async function clearAllHistory() {
+            if (!confirm('Tem certeza que deseja limpar todo o histórico? Esta ação não pode ser desfeita.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch('php/clear-watch-history.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-User-Id': currentUser.id.toString()
+                    }
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    allHistoryVideos = [];
+                    document.getElementById('historyContent').innerHTML = '';
+                    document.getElementById('emptyState').style.display = 'flex';
+
+                    if (typeof showNotification === 'function') {
+                        showNotification('Histórico limpo');
+                    }
+                }
+            } catch (error) {
+                console.error('Error clearing history:', error);
+            }
+        }
+
+        function setupEventListeners() {
+            const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+            const searchHistory = document.getElementById('searchHistory');
+
+            clearHistoryBtn.addEventListener('click', clearAllHistory);
+
+            searchHistory.addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase();
+                if (query === '') {
+                    displayHistory(allHistoryVideos);
+                    return;
+                }
+
+                const filtered = allHistoryVideos.filter(video => 
+                    video.title.toLowerCase().includes(query) ||
+                    video.channel_name.toLowerCase().includes(query)
+                );
+                displayHistory(filtered);
+            });
+        }
+    </script>
+</body>
+</html>

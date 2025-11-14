@@ -1,0 +1,577 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assistir Mais Tarde - ParaTube</title>
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/advanced-features.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="index-page">
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <button class="menu-btn" id="menuBtn">
+                <i class="fas fa-bars"></i>
+            </button>
+            <a href="index.html" class="logo">
+                <img src="assets/logo.svg" alt="ParaTube" style="width: 32px; height: 32px; margin-right: 5px;">
+                <span>ParaTube</span>
+            </a>
+        </div>
+        
+        <div class="header-center">
+            <form class="search-form" id="searchForm">
+                <input type="text" placeholder="Pesquisar" id="searchInput">
+                <button type="submit" class="search-btn">
+                    <i class="fas fa-search"></i>
+                </button>
+            </form>
+        </div>
+        
+        <div class="header-right">            <button class="upload-btn" id="uploadBtn" title="Criar vídeo">
+                <i class="fas fa-video"></i>
+            </button>
+            <button class="notifications-btn" id="notificationsBtn" title="Notificações">
+                <i class="fas fa-bell"></i>
+                <span class="notification-badge" id="notificationBadge" style="display: none;">0</span>
+            </button>
+            <div class="user-menu" id="userMenu">
+                <button class="user-avatar" id="userAvatar" title="Conta">
+                    <i class="fas fa-user-circle"></i>
+                </button>
+                <div class="dropdown-menu" id="dropdownMenu">
+                    <a href="login.html" class="login-link">
+                        <i class="fas fa-sign-in-alt"></i> Fazer Login
+                    </a>
+                    <a href="register.html">
+                        <i class="fas fa-user-plus"></i> Cadastrar
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <nav class="sidebar-nav">
+            <a href="index.html" class="nav-item">
+                <i class="fas fa-home"></i>
+                <span>Início</span>
+            </a>
+            <a href="trending.html" class="nav-item">
+                <i class="fas fa-fire"></i>
+                <span>Em alta</span>
+            </a>
+            <a href="subscriptions.html" class="nav-item">
+                <i class="fas fa-play-circle"></i>
+                <span>Inscrições</span>
+            </a>
+            <hr>
+            <a href="my-channel.html" class="nav-item" id="myChannelLink" style="display: none;">
+                <i class="fas fa-user"></i>
+                <span>Seu canal</span>
+            </a>
+            <a href="history.html" class="nav-item">
+                <i class="fas fa-history"></i>
+                <span>Histórico</span>
+            </a>
+            <a href="watch-later.html" class="nav-item active">
+                <i class="fas fa-clock"></i>
+                <span>Assistir mais tarde</span>
+            </a>
+            <a href="#" class="nav-item" id="favoritesLink" style="display: none;">
+                <i class="fas fa-thumbs-up"></i>
+                <span>Vídeos com "Gostei"</span>
+            </a>
+            <hr>
+            <div class="sidebar-section-title">Inscrições</div>
+            <div id="subscriptionsNav">
+                <!-- Subscriptions will be loaded here -->
+            </div>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content" id="mainContent">
+        <div class="watch-later-header">
+            <div class="watch-later-title-section">
+                <i class="fas fa-clock" style="font-size: 48px; color: #065fd4; margin-right: 20px;"></i>
+                <div>
+                    <h1>Assistir Mais Tarde</h1>
+                    <p class="watch-later-subtitle"><span id="videoCount">0</span> vídeos</p>
+                </div>
+            </div>
+            <div class="watch-later-actions">
+                <button class="action-button" id="playAllBtn">
+                    <i class="fas fa-play"></i> Reproduzir tudo
+                </button>
+                <button class="action-button secondary" id="clearAllBtn">
+                    <i class="fas fa-trash"></i> Limpar todos
+                </button>
+            </div>
+        </div>
+
+        <div class="videos-grid" id="watchLaterVideos">
+            <!-- Videos will be loaded here -->
+        </div>
+
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <i class="fas fa-clock" style="font-size: 80px; color: #999; margin-bottom: 20px;"></i>
+            <h2>Nenhum vídeo para assistir mais tarde</h2>
+            <p>Os vídeos que você salvar para assistir mais tarde aparecerão aqui</p>
+        </div>
+
+        <div id="loadingState" class="loading-state" style="display: flex;">
+            <i class="fas fa-circle-notch fa-spin" style="font-size: 48px; color: #065fd4;"></i>
+        </div>
+    </main>
+
+    <style>
+        .watch-later-header {
+            padding: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .watch-later-title-section {
+            display: flex;
+            align-items: center;
+        }
+
+        .watch-later-title-section h1 {
+            font-size: 32px;
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .watch-later-subtitle {
+            color: #606060;
+            margin-top: 4px;
+            font-size: 14px;
+        }
+
+        .watch-later-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .action-button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background-color: #065fd4;
+            color: white;
+            transition: all 0.2s;
+        }
+
+        .action-button:hover {
+            background-color: #0553b8;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(6, 95, 212, 0.3);
+        }
+
+        .action-button.secondary {
+            background-color: transparent;
+            color: #065fd4;
+            border: 1px solid #065fd4;
+        }
+
+        .action-button.secondary:hover {
+            background-color: rgba(6, 95, 212, 0.1);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(6, 95, 212, 0.2);
+        }
+
+        .videos-grid {
+            padding: 24px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .video-card {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .video-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .video-thumbnail {
+            position: relative;
+            display: block;
+            width: 100%;
+            padding-bottom: 56.25%;
+            overflow: hidden;
+            background: #000;
+        }
+
+        .video-thumbnail img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-duration {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .video-info {
+            padding: 12px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .channel-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            overflow: hidden;
+            flex-shrink: 0;
+            display: block;
+        }
+
+        .channel-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-details {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .video-title {
+            color: var(--text-primary);
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 1.4;
+            margin-bottom: 4px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-decoration: none;
+        }
+
+        .video-title:hover {
+            color: #065fd4;
+        }
+
+        .video-channel {
+            color: var(--text-secondary);
+            font-size: 13px;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .video-channel:hover {
+            color: var(--text-primary);
+        }
+
+        .video-metadata {
+            color: var(--text-secondary);
+            font-size: 12px;
+            display: flex;
+            gap: 4px;
+            align-items: center;
+            margin-top: 4px;
+        }
+
+        .video-added-date {
+            color: var(--text-secondary);
+            font-size: 11px;
+            margin-top: 6px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            opacity: 0.8;
+        }
+
+        .video-menu-btn {
+            background: none;
+            border: none;
+            padding: 8px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            border-radius: 50%;
+            transition: all 0.2s;
+            align-self: flex-start;
+        }
+
+        .video-menu-btn:hover {
+            background: rgba(0, 0, 0, 0.1);
+            color: var(--text-primary);
+        }
+
+        .empty-state, .loading-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 80px 20px;
+            text-align: center;
+        }
+
+        .empty-state h2 {
+            margin: 0 0 8px 0;
+            color: #030303;
+            font-size: 20px;
+        }
+
+        .empty-state p {
+            color: #606060;
+            margin: 0;
+            font-size: 14px;
+        }
+
+        [data-theme="dark"] .watch-later-header {
+            border-bottom-color: #333;
+        }
+
+        [data-theme="dark"] .watch-later-subtitle,
+        [data-theme="dark"] .empty-state p {
+            color: #aaa;
+        }
+
+        [data-theme="dark"] .empty-state h2 {
+            color: #fff;
+        }
+
+        [data-theme="dark"] .action-button.secondary {
+            color: #3ea6ff;
+            border-color: #3ea6ff;
+        }
+
+        [data-theme="dark"] .action-button.secondary:hover {
+            background-color: rgba(62, 166, 255, 0.1);
+        }
+
+        [data-theme="dark"] .video-menu-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .watch-later-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .videos-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+
+    <!-- Scripts -->
+    <script src="js/ga-tracking.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/notifications.js"></script>
+    <script src="js/achievements.js"></script>
+    <script>
+        // Watch Later Page Logic
+        let currentUser = null;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Check authentication
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            if (!user.id) {
+                window.location.href = 'login.html';
+                return;
+            }
+            currentUser = user;
+
+            await loadWatchLaterVideos();
+            setupEventListeners();
+        });
+
+        async function loadWatchLaterVideos() {
+            const loadingState = document.getElementById('loadingState');
+            const emptyState = document.getElementById('emptyState');
+            const videosGrid = document.getElementById('watchLaterVideos');
+            const videoCount = document.getElementById('videoCount');
+
+            try {
+                const response = await fetch(`php/watch-later.php?user_id=${currentUser.id}`);
+                const data = await response.json();
+
+                loadingState.style.display = 'none';
+
+                if (!data.success || !data.videos || data.videos.length === 0) {
+                    emptyState.style.display = 'flex';
+                    videoCount.textContent = '0';
+                    return;
+                }
+
+                videoCount.textContent = data.videos.length;
+                videosGrid.innerHTML = data.videos.map(video => createVideoCard(video)).join('');
+
+                // Setup remove buttons
+                document.querySelectorAll('.remove-watch-later-btn').forEach(btn => {
+                    btn.addEventListener('click', async (e) => {
+                        e.preventDefault();
+                        const videoId = btn.dataset.videoId;
+                        await removeFromWatchLater(videoId);
+                    });
+                });
+
+            } catch (error) {
+                console.error('Error loading watch later videos:', error);
+                loadingState.style.display = 'none';
+                emptyState.style.display = 'flex';
+            }
+        }
+
+        function createVideoCard(video) {
+            const thumbnailUrl = video.thumbnail_url || 'assets/default-thumbnail.jpg';
+            const channelAvatar = video.avatar || 'assets/default-avatar.png';
+            
+            return `
+                <div class="video-card" data-video-id="${video.id}">
+                    <a href="watch.html?v=${video.id}" class="video-thumbnail">
+                        <img src="${thumbnailUrl}" alt="${video.title}" onerror="this.src='assets/default-thumbnail.jpg'">
+                        ${video.duration ? `<span class="video-duration">${video.duration}</span>` : ''}
+                    </a>
+                    <div class="video-info">
+                        <a href="channel.html?id=${video.user_id}" class="channel-avatar">
+                            <img src="${channelAvatar}" alt="${video.channel_name}" onerror="this.src='assets/default-avatar.png'">
+                        </a>
+                        <div class="video-details">
+                            <a href="watch.html?v=${video.id}" class="video-title">${video.title}</a>
+                            <a href="channel.html?id=${video.user_id}" class="video-channel">${video.channel_name}</a>
+                            <div class="video-metadata">
+                                <span>${formatViews(video.views)} visualizações</span>
+                                <span>•</span>
+                                <span>${formatDate(video.created_at)}</span>
+                            </div>
+                            <div class="video-added-date">
+                                <i class="fas fa-clock"></i> Adicionado ${formatDate(video.added_at)}
+                            </div>
+                        </div>
+                        <button class="video-menu-btn remove-watch-later-btn" data-video-id="${video.id}" title="Remover">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function formatViews(views) {
+            const num = parseInt(views) || 0;
+            if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+            if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+            return num.toString();
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diff = now - date;
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+            if (days === 0) return 'Hoje';
+            if (days === 1) return 'Ontem';
+            if (days < 7) return `há ${days} dias`;
+            if (days < 30) return `há ${Math.floor(days / 7)} semanas`;
+            if (days < 365) return `há ${Math.floor(days / 30)} meses`;
+            return `há ${Math.floor(days / 365)} anos`;
+        }
+
+        async function removeFromWatchLater(videoId) {
+            try {
+                const response = await fetch('php/watch-later.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-User-Id': currentUser.id.toString()
+                    },
+                    body: JSON.stringify({ video_id: videoId })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    // Remove the video card from DOM
+                    const videoCard = document.querySelector(`[data-video-id="${videoId}"]`);
+                    if (videoCard) {
+                        videoCard.remove();
+                    }
+
+                    // Update count
+                    const videoCount = document.getElementById('videoCount');
+                    const currentCount = parseInt(videoCount.textContent);
+                    videoCount.textContent = currentCount - 1;
+
+                    // Show empty state if no videos left
+                    if (currentCount - 1 === 0) {
+                        document.getElementById('emptyState').style.display = 'flex';
+                        document.getElementById('watchLaterVideos').style.display = 'none';
+                    }
+
+                    if (typeof showNotification === 'function') {
+                        showNotification('Removido de Assistir Mais Tarde');
+                    }
+                }
+            } catch (error) {
+                console.error('Error removing video:', error);
+            }
+        }
+
+        function setupEventListeners() {
+            const playAllBtn = document.getElementById('playAllBtn');
+            const clearAllBtn = document.getElementById('clearAllBtn');
+
+            playAllBtn.addEventListener('click', () => {
+                const firstVideo = document.querySelector('.video-card');
+                if (firstVideo) {
+                    const videoId = firstVideo.dataset.videoId;
+                    window.location.href = `watch.html?v=${videoId}`;
+                }
+            });
+
+            clearAllBtn.addEventListener('click', async () => {
+                if (!confirm('Tem certeza que deseja remover todos os vídeos da lista?')) {
+                    return;
+                }
+
+                const videoCards = document.querySelectorAll('.video-card');
+                for (const card of videoCards) {
+                    const videoId = card.dataset.videoId;
+                    await removeFromWatchLater(videoId);
+                }
+            });
+        }
+    </script>
+</body>
+</html>

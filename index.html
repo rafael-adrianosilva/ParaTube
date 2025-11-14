@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ParaTube - Página Inicial</title>
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -15,7 +16,7 @@
                 <i class="fas fa-bars"></i>
             </button>
             <a href="index.html" class="logo">
-                <i class="fas fa-play-circle"></i>
+                <img src="assets/logo.svg" alt="ParaTube" style="width: 32px; height: 32px; margin-right: 5px;">
                 <span>ParaTube</span>
             </a>
         </div>
@@ -30,9 +31,6 @@
         </div>
         
         <div class="header-right">
-            <button class="theme-toggle" id="themeToggle" title="Aparência">
-                <i class="fas fa-moon"></i>
-            </button>
             <button class="upload-btn" id="uploadBtn" title="Criar vídeo">
                 <i class="fas fa-video"></i>
             </button>
@@ -76,7 +74,7 @@
                 <i class="fas fa-user"></i>
                 <span>Seu canal</span>
             </a>
-            <a href="#" class="nav-item">
+            <a href="history.html" class="nav-item">
                 <i class="fas fa-history"></i>
                 <span>Histórico</span>
             </a>
@@ -84,9 +82,13 @@
                 <i class="fas fa-folder"></i>
                 <span>Biblioteca</span>
             </a>
-            <a href="#" class="nav-item">
+            <a href="watch-later.html" class="nav-item">
                 <i class="fas fa-clock"></i>
                 <span>Assistir mais tarde</span>
+            </a>
+            <a href="achievements.html" class="nav-item">
+                <i class="fas fa-trophy"></i>
+                <span>Conquistas</span>
             </a>
             <a href="#" class="nav-item">
                 <i class="fas fa-thumbs-up"></i>
@@ -211,8 +213,12 @@
         </div>
     </div>
 
+    <script src="js/ga-tracking.js"></script>
     <script src="js/main.js"></script>
     <script src="js/auth.js"></script>
+    <script src="js/notifications.js"></script>
+    <script src="js/achievements.js"></script>
+    <script src="js/analytics-tracking.js"></script>
     <script>
         // Debug: Mostrar card de teste e verificar avatar
         setTimeout(() => {

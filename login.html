@@ -1,62 +1,121 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ParaTube - Login</title>
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/auth-modern.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="auth-page">
-    <div class="auth-container">
-        <div class="auth-box">
-            <div class="auth-header">
-                <div class="logo-large">
-                    <i class="fas fa-play-circle"></i>
-                    <span>ParaTube</span>
+<body class="auth-page-modern">
+    <!-- Background Animation -->
+    <div class="auth-bg-animation">
+        <div class="floating-shape shape-1"></div>
+        <div class="floating-shape shape-2"></div>
+        <div class="floating-shape shape-3"></div>
+        <div class="floating-shape shape-4"></div>
+    </div>
+
+    <div class="auth-container-modern">
+        <!-- Left Side - Branding -->
+        <div class="auth-branding">
+            <div class="brand-content">
+                <div class="logo-hero">
+                    <i class="fab fa-youtube"></i>
                 </div>
-                <h2>Fazer Login</h2>
+                <h1 class="brand-title">ParaTube</h1>
+                <p class="brand-subtitle">Compartilhe suas histórias com o mundo</p>
+                
+                <div class="brand-features">
+                    <div class="feature-item">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Vídeos ilimitados</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Qualidade HD</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Conquistas e gamificação</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Playlists personalizadas</span>
+                    </div>
+                </div>
             </div>
+        </div>
 
-            <form id="loginForm" class="auth-form">
-                <div class="form-group">
-                    <label for="email">E-mail</label>
-                    <input type="email" id="email" name="email" required>
+        <!-- Right Side - Login Form -->
+        <div class="auth-form-container">
+            <div class="auth-box-modern">
+                <div class="auth-header-modern">
+                    <h2>Bem-vindo de volta!</h2>
+                    <p>Entre com sua conta para continuar</p>
                 </div>
 
-                <div class="form-group">
-                    <label for="password">Senha</label>
-                    <input type="password" id="password" name="password" required>
-                    <button type="button" class="toggle-password" id="togglePassword">
-                        <i class="far fa-eye"></i>
+                <form id="loginForm" class="auth-form-modern">
+                    <div class="form-group-modern">
+                        <label for="email">
+                            <i class="fas fa-envelope"></i>
+                            E-mail
+                        </label>
+                        <input type="email" id="email" name="email" placeholder="seu@email.com" required>
+                    </div>
+
+                    <div class="form-group-modern">
+                        <label for="password">
+                            <i class="fas fa-lock"></i>
+                            Senha
+                        </label>
+                        <div class="input-with-icon">
+                            <input type="password" id="password" name="password" placeholder="••••••••" required>
+                            <button type="button" class="toggle-password-modern" id="togglePassword">
+                                <i class="far fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-options-modern">
+                        <label class="checkbox-modern">
+                            <input type="checkbox" name="remember">
+                            <span class="checkbox-custom"></span>
+                            <span class="checkbox-label">Lembrar-me</span>
+                        </label>
+                        <a href="forgot-password.html" class="link-modern">Esqueceu a senha?</a>
+                    </div>
+
+                    <button type="submit" class="btn-modern btn-primary-modern">
+                        <span>Entrar</span>
+                        <i class="fas fa-arrow-right"></i>
                     </button>
+
+                    <div class="form-divider-modern">
+                        <span>ou continue com</span>
+                    </div>
+
+                    <div class="social-buttons">
+                        <button type="button" class="btn-social-modern btn-google-modern">
+                            <i class="fab fa-google"></i>
+                        </button>
+                        <button type="button" class="btn-social-modern btn-github-modern">
+                            <i class="fab fa-github"></i>
+                        </button>
+                        <button type="button" class="btn-social-modern btn-twitter-modern">
+                            <i class="fab fa-twitter"></i>
+                        </button>
+                    </div>
+                </form>
+
+                <div class="auth-footer-modern">
+                    <p>Não tem uma conta? <a href="register.html" class="link-accent">Cadastre-se gratuitamente</a></p>
                 </div>
 
-                <div class="form-options">
-                    <label class="checkbox-label">
-                        <input type="checkbox" name="remember">
-                        <span>Lembrar-me</span>
-                    </label>
-                    <a href="forgot-password.html" class="forgot-link">Esqueceu a senha?</a>
-                </div>
-
-                <button type="submit" class="btn-primary">Entrar</button>
-
-                <div class="form-divider">
-                    <span>OU</span>
-                </div>
-
-                <button type="button" class="btn-social btn-google">
-                    <i class="fab fa-google"></i>
-                    Continuar com Google
-                </button>
-
-                <div class="auth-footer">
-                    <p>Não tem uma conta? <a href="register.html">Cadastre-se</a></p>
-                </div>
-            </form>
-
-            <div class="alert" id="alert" style="display: none;"></div>
+                <div class="alert" id="alert" style="display: none;"></div>
+            </div>
         </div>
     </div>
 

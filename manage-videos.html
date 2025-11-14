@@ -4,8 +4,456 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gerenciar Vídeos - ParaTube Studio</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/studio.css">
+    <!-- Font & meta refinements -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <meta name="theme-color" content="#667eea">
+    <style>html, body { font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; }</style>
+    <style>
+        body {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #f1f5f9 100%);
+            font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+            min-height: 100vh;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .studio-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            color: #fff;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(102,126,234,0.15);
+            padding: 40px 32px 24px 32px;
+            margin-bottom: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .studio-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { transform: translate(-50%, -50%) rotate(0deg); }
+            50% { transform: translate(-50%, -50%) rotate(180deg); }
+        }
+
+        .studio-header h1 {
+            font-size: 42px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            color: #fff;
+            margin-bottom: 12px;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .studio-header p {
+            font-size: 20px;
+            color: rgba(255,255,255,0.9);
+            position: relative;
+            z-index: 1;
+        }
+
+        .studio-filter-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(102,126,234,0.08);
+            padding: 24px 32px;
+            margin-bottom: 32px;
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .studio-filter-bar:hover {
+            box-shadow: 0 8px 32px rgba(102,126,234,0.12);
+            transform: translateY(-2px);
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 16px;
+        }
+
+        .studio-tab {
+            padding: 12px 28px;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border: 1px solid #e2e8f0;
+            border-radius: 28px;
+            color: #64748b;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .studio-tab::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: left 0.5s;
+        }
+
+        .studio-tab:hover::before {
+            left: 100%;
+        }
+
+        .studio-tab.active, .studio-tab:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            color: #fff;
+            box-shadow: 0 4px 16px rgba(102,126,234,0.2);
+            transform: translateY(-2px);
+            border-color: transparent;
+        }
+
+        .search-studio {
+            display: flex;
+            align-items: center;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border-radius: 28px;
+            padding: 8px 20px;
+            box-shadow: 0 2px 8px rgba(102,126,234,0.06);
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .search-studio:focus-within {
+            box-shadow: 0 4px 16px rgba(102,126,234,0.12);
+            transform: scale(1.02);
+        }
+
+        .search-studio input {
+            border: none;
+            background: transparent;
+            font-size: 16px;
+            color: #334155;
+            margin-left: 12px;
+            outline: none;
+            width: 200px;
+            font-weight: 500;
+        }
+
+        .search-studio input::placeholder {
+            color: #94a3b8;
+        }
+
+        .studio-table-container {
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(102,126,234,0.08);
+            border: 1px solid rgba(255,255,255,0.8);
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .studio-table-container:hover {
+            box-shadow: 0 12px 48px rgba(102,126,234,0.12);
+            transform: translateY(-2px);
+        }
+
+        .studio-table th {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            color: #334155;
+            font-size: 16px;
+            font-weight: 700;
+            padding: 24px 16px;
+            border-bottom: 2px solid #e2e8f0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .studio-table td {
+            font-size: 16px;
+            color: #334155;
+            padding: 24px 16px;
+            border-bottom: 1px solid rgba(226,232,240,0.5);
+        }
+
+        .studio-table tr {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .studio-table tr:hover {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            transform: scale(1.01);
+            box-shadow: 0 4px 16px rgba(102,126,234,0.08);
+        }
+
+        .no-content-studio {
+            text-align: center;
+            padding: 80px 40px;
+            color: #64748b;
+            animation: bounceIn 0.6s ease-out;
+        }
+
+        @keyframes bounceIn {
+            0% { opacity: 0; transform: scale(0.3); }
+            50% { opacity: 1; transform: scale(1.05); }
+            70% { transform: scale(0.9); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .no-content-studio i {
+            font-size: 80px;
+            color: #cbd5e1;
+            margin-bottom: 24px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .no-content-studio h3 {
+            font-size: 28px;
+            color: #334155;
+            margin-bottom: 16px;
+            font-weight: 700;
+        }
+
+        .no-content-studio p {
+            margin-bottom: 32px;
+            color: #64748b;
+            font-size: 18px;
+        }
+
+        .modal-content {
+            border-radius: 24px;
+            box-shadow: 0 20px 64px rgba(102,126,234,0.15);
+            background: rgba(255,255,255,0.98);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.2);
+            animation: modalSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            color: #fff;
+            border-radius: 24px 24px 0 0;
+            padding: 32px 32px 20px 32px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .modal-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: modalShimmer 4s ease-in-out infinite;
+        }
+
+        @keyframes modalShimmer {
+            0%, 100% { transform: translate(50%, -50%) rotate(0deg); }
+            50% { transform: translate(50%, -50%) rotate(180deg); }
+        }
+
+        .modal-header h2 {
+            font-size: 28px;
+            font-weight: 700;
+            margin: 0;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .modal-footer {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border-radius: 0 0 24px 24px;
+            padding: 24px 32px;
+            display: flex;
+            gap: 16px;
+            justify-content: flex-end;
+            border-top: 1px solid rgba(226,232,240,0.5);
+        }
+
+        .btn-primary, .btn-secondary, .btn-danger {
+            font-size: 16px;
+            border-radius: 12px;
+            font-weight: 600;
+            padding: 14px 28px;
+            box-shadow: 0 4px 16px rgba(102,126,234,0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: none;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary::before, .btn-secondary::before, .btn-danger::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-primary:hover::before, .btn-secondary:hover::before, .btn-danger:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #f093fb 0%, #764ba2 50%, #667eea 100%);
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 32px rgba(102,126,234,0.2);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            color: #64748b;
+            border: 1px solid #e2e8f0;
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+            color: #334155;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(102,126,234,0.15);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: #fff;
+        }
+
+        .btn-danger:hover {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 6px 24px rgba(239,68,68,0.3);
+        }
+
+        @media (max-width: 900px) {
+            .studio-header {
+                padding: 24px 16px;
+                margin-bottom: 24px;
+            }
+            .studio-header h1 {
+                font-size: 28px;
+            }
+            .studio-header p {
+                font-size: 16px;
+            }
+            .studio-filter-bar {
+                flex-direction: column;
+                gap: 16px;
+                padding: 16px 20px;
+            }
+            .filter-tabs {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            .studio-tab {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+            .search-studio input {
+                width: 150px;
+            }
+            .studio-table th, .studio-table td {
+                padding: 12px 8px;
+                font-size: 14px;
+            }
+            .btn-primary, .btn-secondary, .btn-danger {
+                padding: 12px 20px;
+                font-size: 14px;
+            }
+            .modal-content {
+                margin: 10px;
+                border-radius: 16px;
+            }
+            .modal-header {
+                padding: 20px 20px 16px 20px;
+            }
+            .modal-header h2 {
+                font-size: 20px;
+            }
+            .modal-footer {
+                padding: 16px 20px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .studio-header {
+                padding: 20px 12px;
+            }
+            .studio-header h1 {
+                font-size: 24px;
+            }
+            .studio-filter-bar {
+                padding: 12px 16px;
+            }
+            .studio-tab {
+                padding: 8px 16px;
+                font-size: 13px;
+            }
+            .search-studio {
+                padding: 6px 16px;
+            }
+            .search-studio input {
+                width: 120px;
+                font-size: 14px;
+            }
+            .studio-table th, .studio-table td {
+                padding: 8px 6px;
+                font-size: 13px;
+            }
+            .btn-primary, .btn-secondary, .btn-danger {
+                padding: 10px 16px;
+                font-size: 13px;
+            }
+        }
+    </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- EasyMDE Markdown Editor -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.css">
 </head>
 <body>
     <!-- Header -->
@@ -15,7 +463,7 @@
                 <i class="fas fa-bars"></i>
             </button>
             <a href="index.html" class="logo">
-                <i class="fas fa-play-circle"></i>
+                <img src="assets/logo.svg" alt="ParaTube" style="width: 32px; height: 32px; margin-right: 5px;">
                 <span>ParaTube Studio</span>
             </a>
         </div>
@@ -31,6 +479,9 @@
                 <div class="dropdown-menu" id="dropdownMenu">
                     <a href="my-channel.html">
                         <i class="fas fa-user"></i> <span id="userNameDisplay">Seu canal</span>
+                    </a>
+                    <a href="revenue.html">
+                        <i class="fas fa-dollar-sign"></i> Receita
                     </a>
                     <a href="profile.html">
                         <i class="fas fa-cog"></i> Configurações
@@ -110,8 +561,21 @@
                 </div>
                 
                 <div class="form-group">
-                    <label>Descrição</label>
-                    <textarea id="editVideoDescription" rows="5" maxlength="5000" class="form-input"></textarea>
+                    <label>
+                        Descrição 
+                        <span class="markdown-badge"><i class="fab fa-markdown"></i> Markdown</span>
+                        <button type="button" class="btn-templates" id="loadTemplateBtn" title="Carregar template">
+                            <i class="fas fa-file-alt"></i> Templates
+                        </button>
+                        <button type="button" class="btn-save-template" id="saveTemplateBtn" title="Salvar como template">
+                            <i class="fas fa-save"></i> Salvar Template
+                        </button>
+                    </label>
+                    <textarea id="editVideoDescription" rows="10" class="form-input markdown-textarea"></textarea>
+                    <div class="auto-tags" id="autoTagsContainer" style="display: none;">
+                        <span class="tags-label"><i class="fas fa-tags"></i> Tags sugeridas:</span>
+                        <div id="suggestedTags"></div>
+                    </div>
                 </div>
                 
                 <div class="form-group">
@@ -221,7 +685,11 @@
         </div>
     </div>
 
+    <!-- EasyMDE Markdown Editor -->
+    <script src="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.js"></script>
+    
     <script src="js/auth.js"></script>
     <script src="js/manage-videos.js"></script>
+    <script src="js/markdown-editor.js"></script>
 </body>
 </html>

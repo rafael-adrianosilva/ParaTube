@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics - ParaTube</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <!-- HEADER -->
+    <header class="header">
+        <div class="header-left">
+            <button id="menuBtn" class="icon-btn">
+                <i class="fas fa-bars"></i>
+            </button>
+            <a href="index.html" class="logo">
+                <i class="fab fa-youtube"></i>
+                <span>ParaTube</span>
+            </a>
+        </div>
+        
+        <div class="header-center">
+            <form class="search-bar" id="searchForm">
+                <input type="text" placeholder="Pesquisar" id="searchInput">
+                <button type="submit" class="search-btn">
+                    <i class="fas fa-search"></i>
+                </button>
+            </form>
+        </div>
+        
+        <div class="header-right">
+            <button class="icon-btn" id="themeToggle" title="Alternar tema">
+                <i class="fas fa-moon"></i>
+            </button>
+            <button class="icon-btn">
+                <i class="fas fa-bell"></i>
+            </button>
+            <div class="user-menu" id="userMenu">
+                <img src="assets/default-avatar.png" alt="User" class="user-avatar" id="userAvatar">
+            </div>
+        </div>
+    </header>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+        <nav class="sidebar-nav">
+            <a href="index.html" class="nav-item">
+                <i class="fas fa-home"></i>
+                <span>Início</span>
+            </a>
+            <a href="trending.html" class="nav-item">
+                <i class="fas fa-fire"></i>
+                <span>Em alta</span>
+            </a>
+            <a href="subscriptions.html" class="nav-item">
+                <i class="fas fa-play-circle"></i>
+                <span>Inscrições</span>
+            </a>
+            
+            <hr class="sidebar-divider">
+            
+            <a href="my-channel.html" class="nav-item">
+                <i class="fas fa-user"></i>
+                <span>Meu Canal</span>
+            </a>
+            <a href="manage-videos.html" class="nav-item">
+                <i class="fas fa-video"></i>
+                <span>Meus Vídeos</span>
+            </a>
+            <a href="manage-stats.html" class="nav-item active">
+                <i class="fas fa-chart-line"></i>
+                <span>Analytics</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        <div class="page-header">
+            <h1><i class="fas fa-chart-line"></i> Analytics do Canal</h1>
+            <p class="subtitle">Acompanhe o desempenho do seu canal</p>
+        </div>
+
+        <!-- RESUMO GERAL -->
+        <div class="stats-overview">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <i class="fas fa-eye"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="totalViews">0</h3>
+                    <p>Total de Visualizações</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="totalSubscribers">0</h3>
+                    <p>Inscritos</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <i class="fas fa-video"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="totalVideos">0</h3>
+                    <p>Vídeos Publicados</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                    <i class="fas fa-comments"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="totalComments">0</h3>
+                    <p>Comentários</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- GRÁFICOS -->
+        <div class="analytics-charts">
+            <div class="chart-container">
+                <h2><i class="fas fa-chart-area"></i> Visualizações nos últimos 30 dias</h2>
+                <canvas id="viewsChart"></canvas>
+            </div>
+            
+            <div class="chart-container">
+                <h2><i class="fas fa-chart-line"></i> Crescimento de Inscritos</h2>
+                <canvas id="subscribersChart"></canvas>
+            </div>
+        </div>
+
+        <!-- TOP VIDEOS -->
+        <div class="top-videos-section">
+            <h2><i class="fas fa-trophy"></i> Vídeos Mais Populares</h2>
+            <div id="topVideosList" class="top-videos-list">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+
+        <!-- ADVANCED ANALYTICS SECTION -->
+        <div class="advanced-analytics-section">
+            <h2><i class="fas fa-chart-bar"></i> Analytics Avançado</h2>
+            
+            <div class="analytics-grid">
+                <!-- CTR Card -->
+                <div class="analytics-card">
+                    <h3><i class="fas fa-mouse-pointer"></i> Taxa de Cliques (CTR)</h3>
+                    <div class="big-stat" id="avgCTR">0%</div>
+                    <p class="stat-label">CTR médio dos últimos 30 dias</p>
+                    <canvas id="ctrChart" style="max-height: 200px;"></canvas>
+                </div>
+                
+                <!-- Traffic Sources Card -->
+                <div class="analytics-card">
+                    <h3><i class="fas fa-globe"></i> Fontes de Tráfego</h3>
+                    <canvas id="trafficChart" style="max-height: 250px;"></canvas>
+                </div>
+                
+                <!-- Device Breakdown Card -->
+                <div class="analytics-card">
+                    <h3><i class="fas fa-mobile-alt"></i> Dispositivos</h3>
+                    <canvas id="devicesChart" style="max-height: 250px;"></canvas>
+                </div>
+                
+                <!-- Engagement Card -->
+                <div class="analytics-card">
+                    <h3><i class="fas fa-heart"></i> Taxa de Engajamento</h3>
+                    <div class="big-stat" id="engagementRate">0%</div>
+                    <p class="stat-label">Likes + Comentários / Views</p>
+                    <div class="engagement-details" id="engagementDetails"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIDEO HEATMAP SECTION -->
+        <div class="heatmap-section" style="display: none;" id="heatmapSection">
+            <h2><i class="fas fa-fire"></i> Mapa de Calor de Retenção</h2>
+            <p class="section-description">Veja onde os espectadores mais interagem (pulam, voltam ou reassistem)</p>
+            <div class="video-selector">
+                <label for="heatmapVideoSelect">Selecione um vídeo:</label>
+                <select id="heatmapVideoSelect" class="video-select">
+                    <option value="">Carregando vídeos...</option>
+                </select>
+            </div>
+            <div class="heatmap-container" id="heatmapContainer">
+                <canvas id="heatmapChart"></canvas>
+            </div>
+            <div class="heatmap-legend">
+                <div class="legend-item">
+                    <span class="legend-color" style="background: #ff6384;"></span>
+                    <span>Partes mais puladas (skip)</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color" style="background: #36a2eb;"></span>
+                    <span>Partes mais reassistidas (rewind)</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color" style="background: #4bc0c0;"></span>
+                    <span>Partes mais repetidas (replay)</span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/auth.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        // Load analytics data
+        async function loadAnalytics() {
+            try {
+                const response = await fetch('php/get-stats.php');
+                const data = await response.json();
+                
+                // Update summary cards
+                document.getElementById('totalViews').textContent = formatNumber(data.totalViews || 0);
+                document.getElementById('totalSubscribers').textContent = formatNumber(data.totalSubscribers || 0);
+                document.getElementById('totalVideos').textContent = data.totalVideos || 0;
+                document.getElementById('totalComments').textContent = data.totalComments || 0;
+                
+                // Create views chart
+                createViewsChart(data.viewsData || []);
+                
+                // Create subscribers chart
+                createSubscribersChart(data.subscribersData || []);
+                
+                // Display top videos
+                displayTopVideos(data.topVideos || []);
+                
+            } catch (error) {
+                console.error('Erro ao carregar analytics:', error);
+            }
+        }
+
+        function formatNumber(num) {
+            if (num >= 1000000000) {
+                return (num / 1000000000).toFixed(1).replace('.0', '') + ' bi';
+            } else if (num >= 1000000) {
+                return (num / 1000000).toFixed(1).replace('.0', '') + ' mi';
+            } else if (num >= 1000) {
+                return (num / 1000).toFixed(1).replace('.0', '') + ' mil';
+            }
+            return num.toLocaleString('pt-BR');
+        }
+
+        function createViewsChart(data) {
+            const ctx = document.getElementById('viewsChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.map(d => d.date),
+                    datasets: [{
+                        label: 'Visualizações',
+                        data: data.map(d => d.views),
+                        borderColor: '#ff0000',
+                        backgroundColor: 'rgba(255, 0, 0, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return formatNumber(value);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function createSubscribersChart(data) {
+            const ctx = document.getElementById('subscribersChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.map(d => d.date),
+                    datasets: [{
+                        label: 'Inscritos',
+                        data: data.map(d => d.subscribers),
+                        borderColor: '#4facfe',
+                        backgroundColor: 'rgba(79, 172, 254, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return formatNumber(value);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function displayTopVideos(videos) {
+            const container = document.getElementById('topVideosList');
+            
+            if (videos.length === 0) {
+                container.innerHTML = '<p class="no-data">Nenhum vídeo ainda</p>';
+                return;
+            }
+            
+            container.innerHTML = videos.map((video, index) => `
+                <div class="top-video-item">
+                    <div class="rank">#${index + 1}</div>
+                    <a href="watch.html?v=${video.id}" class="video-thumbnail-small">
+                        <img src="${video.thumbnail}" alt="${video.title}">
+                    </a>
+                    <div class="video-info-small">
+                        <h4>${video.title}</h4>
+                        <p>${formatNumber(video.views)} visualizações</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // ==================== HEATMAP FUNCTIONALITY ====================
+        let heatmapChart = null;
+
+        async function loadUserVideosForHeatmap() {
+            try {
+                const response = await fetch('php/get-user-videos.php');
+                const data = await response.json();
+                
+                const select = document.getElementById('heatmapVideoSelect');
+                
+                if (data.videos && data.videos.length > 0) {
+                    select.innerHTML = '<option value="">Selecione um vídeo</option>' +
+                        data.videos.map(v => `<option value="${v.id}">${v.title}</option>`).join('');
+                    
+                    document.getElementById('heatmapSection').style.display = 'block';
+                } else {
+                    select.innerHTML = '<option value="">Nenhum vídeo disponível</option>';
+                }
+            } catch (error) {
+                console.error('Error loading videos:', error);
+            }
+        }
+
+        async function loadHeatmap(videoId) {
+            if (!videoId) return;
+            
+            try {
+                const response = await fetch(`php/get-heatmap.php?video_id=${videoId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayHeatmap(data.heatmap, data.max_interactions);
+                }
+            } catch (error) {
+                console.error('Error loading heatmap:', error);
+            }
+        }
+
+        function displayHeatmap(heatmapData, maxInteractions) {
+            const ctx = document.getElementById('heatmapChart').getContext('2d');
+            
+            // Destroy existing chart
+            if (heatmapChart) {
+                heatmapChart.destroy();
+            }
+            
+            // Prepare data
+            const labels = heatmapData.map(d => formatTime(d.timestamp));
+            const seekData = heatmapData.map(d => d.seek_count);
+            const skipData = heatmapData.map(d => d.skip_count);
+            const rewindData = heatmapData.map(d => d.rewind_count);
+            const replayData = heatmapData.map(d => d.replay_count);
+            
+            heatmapChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Pulos (Skip)',
+                            data: skipData,
+                            backgroundColor: 'rgba(255, 99, 132, 0.7)',
+                            borderColor: 'rgb(255, 99, 132)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Voltas (Rewind)',
+                            data: rewindData,
+                            backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                            borderColor: 'rgb(54, 162, 235)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Repetições (Replay)',
+                            data: replayData,
+                            backgroundColor: 'rgba(75, 192, 192, 0.7)',
+                            borderColor: 'rgb(75, 192, 192)',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            stacked: false,
+                            title: {
+                                display: true,
+                                text: 'Posição no Vídeo (tempo)'
+                            }
+                        },
+                        y: {
+                            stacked: false,
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Número de Interações'
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
+                        },
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    }
+                }
+            });
+        }
+
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // Video selector change handler
+        document.getElementById('heatmapVideoSelect')?.addEventListener('change', (e) => {
+            const videoId = e.target.value;
+            if (videoId) {
+                loadHeatmap(videoId);
+            }
+        });
+
+        // ==================== ADVANCED ANALYTICS ====================
+        async function loadAdvancedAnalytics() {
+            try {
+                const response = await fetch('php/get-advanced-analytics.php');
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayCTRChart(data.analytics.ctr || []);
+                    displayTrafficSources(data.analytics.traffic_sources || []);
+                    displayDeviceBreakdown(data.analytics.devices || []);
+                    displayEngagement(data.analytics.engagement || {});
+                }
+            } catch (error) {
+                console.error('Error loading advanced analytics:', error);
+            }
+        }
+
+        function displayCTRChart(ctrData) {
+            if (ctrData.length === 0) return;
+            
+            const ctx = document.getElementById('ctrChart').getContext('2d');
+            const avgCTR = ctrData.reduce((sum, d) => sum + d.ctr, 0) / ctrData.length;
+            document.getElementById('avgCTR').textContent = avgCTR.toFixed(2) + '%';
+            
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ctrData.map(d => d.date),
+                    datasets: [{
+                        label: 'CTR %',
+                        data: ctrData.map(d => d.ctr),
+                        borderColor: '#4facfe',
+                        backgroundColor: 'rgba(79, 172, 254, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { callback: (val) => val + '%' }
+                        }
+                    }
+                }
+            });
+        }
+
+        function displayTrafficSources(sources) {
+            if (sources.length === 0) return;
+            
+            const ctx = document.getElementById('trafficChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: sources.map(s => s.source),
+                    datasets: [{
+                        data: sources.map(s => s.count),
+                        backgroundColor: [
+                            '#ff6384', '#36a2eb', '#ffcd56', '#4bc0c0', 
+                            '#9966ff', '#ff9f40', '#c9cbcf'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+        }
+
+        function displayDeviceBreakdown(devices) {
+            if (devices.length === 0) return;
+            
+            const ctx = document.getElementById('devicesChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: devices.map(d => d.device),
+                    datasets: [{
+                        data: devices.map(d => d.count),
+                        backgroundColor: ['#ff6384', '#36a2eb', '#ffcd56']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+        }
+
+        function displayEngagement(engagement) {
+            if (!engagement.views) return;
+            
+            document.getElementById('engagementRate').textContent = engagement.engagement_rate + '%';
+            document.getElementById('engagementDetails').innerHTML = `
+                <div style="margin-top: 16px; font-size: 14px;">
+                    <div style="margin-bottom: 8px;"><strong>Views:</strong> ${formatNumber(engagement.views)}</div>
+                    <div style="margin-bottom: 8px;"><strong>Likes:</strong> ${formatNumber(engagement.likes)}</div>
+                    <div><strong>Comentários:</strong> ${formatNumber(engagement.comments)}</div>
+                </div>
+            `;
+        }
+
+        // Load data on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadAnalytics();
+            loadUserVideosForHeatmap();
+            loadAdvancedAnalytics();
+        });
+    </script>
+</body>
+</html>

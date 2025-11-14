@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão de Receita - ParaTube</title>
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .main-content {
+            margin-left: 240px;
+            padding: 80px 20px 20px 20px;
+            transition: margin-left 0.3s ease;
+        }
+
+        body.sidebar-collapsed .main-content {
+            margin-left: 0;
+        }
+
+        .revenue-dashboard {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .revenue-dashboard > h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .revenue-dashboard > h1 i {
+            font-size: 28px;
+        }
+        
+        .revenue-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 28px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: 1px solid rgba(0,0,0,0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(180deg, #667eea, #764ba2);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        }
+        
+        .stat-card h3 {
+            font-size: 13px;
+            color: #666;
+            margin: 0 0 12px 0;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .stat-value {
+            font-size: 38px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin: 8px 0;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .stat-subtitle {
+            font-size: 13px;
+            color: #999;
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .stat-trend {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 6px;
+        }
+
+        .stat-trend.up {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .stat-trend.down {
+            background: #ffebee;
+            color: #c62828;
+        }
+        
+        .chart-container {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        
+        .chart-container h2 {
+            font-size: 22px;
+            margin: 0 0 24px 0;
+            font-weight: 600;
+            color: #1a1a1a;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chart-container h2::before {
+            content: '';
+            width: 4px;
+            height: 24px;
+            background: linear-gradient(180deg, #667eea, #764ba2);
+            border-radius: 2px;
+        }
+        
+        .chart-wrapper {
+            position: relative;
+            height: 350px;
+            background: #fafafa;
+            border-radius: 12px;
+            padding: 20px;
+        }
+        
+        .revenue-filters {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        
+        .revenue-filters label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #444;
+        }
+        
+        .revenue-filters input,
+        .revenue-filters select {
+            padding: 10px 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s;
+            background: #fafafa;
+        }
+
+        .revenue-filters input:focus,
+        .revenue-filters select:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+        
+        .btn-add-revenue {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: auto;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn-add-revenue:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-add-revenue:active {
+            transform: translateY(0);
+        }
+        
+        .revenue-table {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        
+        .revenue-table h2 {
+            font-size: 22px;
+            margin: 0 0 24px 0;
+            font-weight: 600;
+            color: #1a1a1a;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .revenue-table h2::before {
+            content: '';
+            width: 4px;
+            height: 24px;
+            background: linear-gradient(180deg, #667eea, #764ba2);
+            border-radius: 2px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        
+        table th {
+            text-align: left;
+            padding: 16px;
+            background: linear-gradient(135deg, #f8f9ff, #faf5ff);
+            font-weight: 600;
+            font-size: 13px;
+            color: #555;
+            border-bottom: 2px solid #667eea;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        table th:first-child {
+            border-radius: 10px 0 0 0;
+        }
+
+        table th:last-child {
+            border-radius: 0 10px 0 0;
+        }
+        
+        table td {
+            padding: 16px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
+            color: #333;
+        }
+        
+        table tr:hover {
+            background: linear-gradient(90deg, #f8f9ff, transparent);
+        }
+
+        table tr:last-child td {
+            border-bottom: none;
+        }
+
+        table tr:last-child td:first-child {
+            border-radius: 0 0 0 10px;
+        }
+
+        table tr:last-child td:last-child {
+            border-radius: 0 0 10px 0;
+        }
+        
+        .revenue-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .btn-icon {
+            background: #f5f5f5;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            color: #666;
+            font-size: 16px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .btn-icon:hover {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .btn-icon.edit-btn:hover {
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+        }
+
+        .btn-icon.delete-btn:hover {
+            background: linear-gradient(135deg, #fa709a, #fee140);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(8px);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.2s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { 
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to { 
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 650px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideUp 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .modal-header h2 {
+            font-size: 24px;
+            margin: 0;
+            font-weight: 600;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .btn-close {
+            background: #f5f5f5;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #666;
+            padding: 0;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .btn-close:hover {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            transform: rotate(90deg);
+        }
+        
+        .form-group {
+            margin-bottom: 24px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            box-sizing: border-box;
+            transition: all 0.3s;
+            background: #fafafa;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .btn-submit {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 15px;
+            width: 100%;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            margin-top: 10px;
+        }
+        
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+        
+        .currency-symbol {
+            color: #667eea;
+            font-weight: 700;
+            font-size: 16px;
+        }
+        
+        .source-badge {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .source-ads { background: linear-gradient(135deg, #d4fc79, #96e6a1); color: #1b5e20; }
+        .source-membership { background: linear-gradient(135deg, #a1c4fd, #c2e9fb); color: #0d47a1; }
+        .source-sponsorship { background: linear-gradient(135deg, #ffecd2, #fcb69f); color: #bf360c; }
+        .source-donation { background: linear-gradient(135deg, #fccb90, #d57eeb); color: #880e4f; }
+        .source-merchandise { background: linear-gradient(135deg, #e0c3fc, #8ec5fc); color: #4a148c; }
+        .source-affiliate { background: linear-gradient(135deg, #a8edea, #fed6e3); color: #004d40; }
+        .source-other { background: linear-gradient(135deg, #e0e0e0, #cfcfcf); color: #424242; }
+        
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: #999;
+            background: linear-gradient(135deg, #fafafa, #f5f5f5);
+            border-radius: 16px;
+            margin: 20px 0;
+        }
+        
+        .empty-state i {
+            font-size: 72px;
+            margin-bottom: 24px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            opacity: 0.6;
+        }
+
+        .empty-state h3 {
+            font-size: 20px;
+            margin-bottom: 10px;
+            color: #555;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+            color: #888;
+        }
+
+        /* Dark Mode Styles */
+        [data-theme="dark"] body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        }
+
+        [data-theme="dark"] .revenue-header {
+            background: linear-gradient(135deg, #0f3460, #533483);
+        }
+
+        [data-theme="dark"] .stat-card,
+        [data-theme="dark"] .chart-container,
+        [data-theme="dark"] .revenue-filters,
+        [data-theme="dark"] .revenue-table {
+            background: #1f1f1f;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            border-color: rgba(255,255,255,0.05);
+        }
+
+        [data-theme="dark"] .stat-card h3 {
+            color: #999;
+        }
+
+        [data-theme="dark"] .stat-value {
+            color: #fff;
+        }
+
+        [data-theme="dark"] .stat-subtitle {
+            color: #777;
+        }
+
+        [data-theme="dark"] .chart-container h2,
+        [data-theme="dark"] .revenue-table h2 {
+            color: #fff;
+        }
+
+        [data-theme="dark"] .chart-wrapper {
+            background: #2a2a2a;
+        }
+
+        [data-theme="dark"] .revenue-filters label {
+            color: #bbb;
+        }
+
+        [data-theme="dark"] .revenue-filters input,
+        [data-theme="dark"] .revenue-filters select,
+        [data-theme="dark"] .form-group input,
+        [data-theme="dark"] .form-group select,
+        [data-theme="dark"] .form-group textarea {
+            background: #2a2a2a;
+            border-color: #444;
+            color: #fff;
+        }
+
+        [data-theme="dark"] .revenue-filters input:focus,
+        [data-theme="dark"] .revenue-filters select:focus,
+        [data-theme="dark"] .form-group input:focus,
+        [data-theme="dark"] .form-group select:focus,
+        [data-theme="dark"] .form-group textarea:focus {
+            background: #333;
+            border-color: #667eea;
+        }
+
+        [data-theme="dark"] table th {
+            background: linear-gradient(135deg, #2a2a3e, #2e2440);
+            color: #bbb;
+            border-bottom-color: #667eea;
+        }
+
+        [data-theme="dark"] table td {
+            color: #ddd;
+            border-bottom-color: #333;
+        }
+
+        [data-theme="dark"] table tr:hover {
+            background: linear-gradient(90deg, #2a2a3e, transparent);
+        }
+
+        [data-theme="dark"] .btn-icon {
+            background: #2a2a2a;
+            color: #999;
+        }
+
+        [data-theme="dark"] .btn-icon:hover {
+            color: #fff;
+        }
+
+        [data-theme="dark"] .modal {
+            background: rgba(0,0,0,0.85);
+        }
+
+        [data-theme="dark"] .modal-content {
+            background: #1f1f1f;
+            border-color: rgba(255,255,255,0.1);
+        }
+
+        [data-theme="dark"] .modal-header {
+            border-bottom-color: #333;
+        }
+
+        [data-theme="dark"] .modal-header h2,
+        [data-theme="dark"] .form-group label {
+            color: #fff;
+        }
+
+        [data-theme="dark"] .btn-close {
+            background: #2a2a2a;
+            color: #999;
+        }
+
+        [data-theme="dark"] .empty-state {
+            background: linear-gradient(135deg, #2a2a2a, #252525);
+            color: #777;
+        }
+
+        [data-theme="dark"] .empty-state h3 {
+            color: #aaa;
+        }
+
+        [data-theme="dark"] .empty-state p {
+            color: #666;
+        }
+
+        [data-theme="dark"] .empty-state {
+            color: #666;
+        }
+
+        [data-theme="dark"] .currency-symbol {
+            color: #3ea6ff;
+        }
+
+        [data-theme="dark"] .btn-add-revenue {
+            background: #3ea6ff;
+        }
+
+        [data-theme="dark"] .btn-add-revenue:hover {
+            background: #2a8fdf;
+        }
+
+        [data-theme="dark"] .btn-submit {
+            background: #3ea6ff;
+        }
+
+        [data-theme="dark"] .btn-submit:hover {
+            background: #2a8fdf;
+        }
+
+        /* Melhorias gerais de responsividade */
+        @media (max-width: 1024px) {
+            .main-content {
+                margin-left: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 70px 15px 15px 15px;
+            }
+
+            .revenue-dashboard > h1 {
+                font-size: 24px;
+            }
+
+            .revenue-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .revenue-filters {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .btn-add-revenue {
+                margin-left: 0;
+                justify-content: center;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            table {
+                font-size: 12px;
+                display: block;
+                overflow-x: auto;
+            }
+
+            table th,
+            table td {
+                padding: 8px;
+                white-space: nowrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <button class="menu-btn" id="menuBtn">
+                <i class="fas fa-bars"></i>
+            </button>
+            <a href="index.html" class="logo">
+                <img src="assets/logo.svg" alt="ParaTube" style="width: 32px; height: 32px; margin-right: 5px;">
+                <span>ParaTube</span>
+            </a>
+        </div>
+        
+        <div class="header-center">
+            <form class="search-form" id="searchForm">
+                <input type="text" placeholder="Pesquisar" id="searchInput">
+                <button type="submit" class="search-btn">
+                    <i class="fas fa-search"></i>
+                </button>
+            </form>
+        </div>
+        
+        <div class="header-right">
+            <button class="theme-toggle" id="themeToggle" title="Aparência">
+                <i class="fas fa-moon"></i>
+            </button>
+            <button class="upload-btn" id="uploadBtn" title="Criar vídeo">
+                <i class="fas fa-video"></i>
+            </button>
+            <button class="notifications-btn" id="notificationsBtn" title="Notificações">
+                <i class="fas fa-bell"></i>
+                <span class="notification-badge" id="notificationBadge" style="display: none;">0</span>
+            </button>
+            <div class="user-menu" id="userMenu">
+                <button class="user-avatar" id="userAvatar" title="Conta">
+                    <i class="fas fa-user-circle"></i>
+                </button>
+                <div class="dropdown-menu" id="dropdownMenu">
+                    <a href="my-channel.html" id="myChannelLink" style="display: none;">
+                        <i class="fas fa-user"></i> Seu canal
+                    </a>
+                    <a href="profile.html" id="profileLink" style="display: none;">
+                        <i class="fas fa-cog"></i> Configurações
+                    </a>
+                    <a href="revenue.html" id="revenueLink" style="display: none;">
+                        <i class="fas fa-dollar-sign"></i> Receitas
+                    </a>
+                    <a href="manage-videos.html" id="manageVideosLink" style="display: none;">
+                        <i class="fas fa-video"></i> Gerenciar vídeos
+                    </a>
+                    <hr id="menuDivider" style="display: none;">
+                    <a href="#" id="logoutLink" style="display: none;">
+                        <i class="fas fa-sign-out-alt"></i> Sair
+                    </a>
+                    <a href="login.html" class="login-link" id="loginLink">
+                        <i class="fas fa-sign-in-alt"></i> Fazer Login
+                    </a>
+                    <a href="register.html" id="registerLink">
+                        <i class="fas fa-user-plus"></i> Cadastrar
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <nav class="sidebar-nav">
+            <a href="index.html" class="nav-item">
+                <i class="fas fa-home"></i>
+                <span>Início</span>
+            </a>
+            <a href="trending.html" class="nav-item">
+                <i class="fas fa-fire"></i>
+                <span>Em alta</span>
+            </a>
+            <a href="subscriptions.html" class="nav-item">
+                <i class="fas fa-play-circle"></i>
+                <span>Inscrições</span>
+            </a>
+            <hr>
+            <a href="my-channel.html" class="nav-item" id="myChannelSidebarLink" style="display: none;">
+                <i class="fas fa-user"></i>
+                <span>Seu canal</span>
+            </a>
+            <a href="history.html" class="nav-item">
+                <i class="fas fa-history"></i>
+                <span>Histórico</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-folder"></i>
+                <span>Biblioteca</span>
+            </a>
+            <a href="watch-later.html" class="nav-item">
+                <i class="fas fa-clock"></i>
+                <span>Assistir mais tarde</span>
+            </a>
+            <a href="achievements.html" class="nav-item">
+                <i class="fas fa-trophy"></i>
+                <span>Conquistas</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-thumbs-up"></i>
+                <span>Vídeos curtidos</span>
+            </a>
+            <hr>
+            <a href="manage-videos.html" class="nav-item" id="manageVideosSidebarLink" style="display: none;">
+                <i class="fas fa-video"></i>
+                <span>Gerenciar vídeos</span>
+            </a>
+            <a href="revenue.html" class="nav-item active" id="revenueSidebarLink" style="display: none;">
+                <i class="fas fa-dollar-sign"></i>
+                <span>Receitas</span>
+            </a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <div class="revenue-dashboard">
+            <h1>
+                <i class="fas fa-dollar-sign"></i>
+                Gestão de Receita
+            </h1>
+            
+            <!-- Info Banner -->
+            <div style="background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,255,255,0.9)); border-radius: 16px; padding: 20px 24px; margin-bottom: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); border-left: 4px solid #4CAF50;">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <i class="fas fa-robot" style="font-size: 32px; color: #4CAF50;"></i>
+                    <div>
+                        <h3 style="margin: 0 0 5px 0; color: #4CAF50; font-size: 18px;">
+                            Sistema de Receita Automático Ativado
+                        </h3>
+                        <p style="margin: 0; color: #666; font-size: 14px;">
+                            Suas receitas são calculadas automaticamente baseadas nas visualizações dos seus vídeos. RPM base: R$ 2,50/1000 views + bônus para vídeos virais!
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Stats Cards -->
+            <div class="revenue-stats">
+                <div class="stat-card">
+                    <h3>Receita Total</h3>
+                    <div class="stat-value">
+                        <span class="currency-symbol">R$</span>
+                        <span id="totalRevenue">0,00</span>
+                    </div>
+                    <div class="stat-subtitle" id="daysWithRevenue">0 dias com receita</div>
+                </div>
+                
+                <div class="stat-card">
+                    <h3>Receita Média Diária</h3>
+                    <div class="stat-value">
+                        <span class="currency-symbol">R$</span>
+                        <span id="avgDailyRevenue">0,00</span>
+                    </div>
+                    <div class="stat-subtitle">Média do período</div>
+                </div>
+                
+                <div class="stat-card">
+                    <h3>RPM Médio</h3>
+                    <div class="stat-value">
+                        <span class="currency-symbol">R$</span>
+                        <span id="avgRPM">0,00</span>
+                    </div>
+                    <div class="stat-subtitle">Por 1.000 visualizações</div>
+                </div>
+                
+                <div class="stat-card">
+                    <h3>CPM Médio</h3>
+                    <div class="stat-value">
+                        <span class="currency-symbol">R$</span>
+                        <span id="avgCPM">0,00</span>
+                    </div>
+                    <div class="stat-subtitle">Por 1.000 impressões</div>
+                </div>
+            </div>
+            
+            <!-- Charts Row -->
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 20px;">
+                <div class="chart-container">
+                    <h2>Receita ao Longo do Tempo</h2>
+                    <div class="chart-wrapper">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <h2>Receita por Fonte</h2>
+                    <div class="chart-wrapper">
+                        <canvas id="sourceChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recent Entries Table -->
+            <div class="revenue-table">
+                <h2>Entradas Recentes de Receita</h2>
+                <div id="revenueTableContainer">
+                    <div class="empty-state">
+                        <i class="fas fa-dollar-sign"></i>
+                        <p>Nenhuma receita registrada ainda</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/main.js"></script>
+    <script src="js/notifications.js"></script>
+    <script src="js/revenue-auto.js"></script>
+</body>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        if (window.setupMenuAndTheme) setupMenuAndTheme();
+        if (window.setupUploadModal) setupUploadModal();
+        if (window.setupActionButtons) setupActionButtons();
+    });
+</script>
+</html>
+</body>
+</html>

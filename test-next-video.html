@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste - Próximo Vídeo</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #0f0f0f;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+        .test-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .video-player {
+            position: relative;
+            width: 100%;
+            max-width: 854px;
+            margin: 0 auto;
+            background: #000;
+        }
+        video {
+            width: 100%;
+            display: block;
+        }
+        .info {
+            background: #1f1f1f;
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 8px;
+        }
+        .info h2 {
+            margin-top: 0;
+        }
+        .info p {
+            margin: 10px 0;
+        }
+        .test-btn {
+            background: #065fd4;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            margin: 10px 10px 10px 0;
+        }
+        .test-btn:hover {
+            background: #0553b8;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🎬 Teste do Sistema de Próximo Vídeo</h1>
+        
+        <div class="info">
+            <h2>Instruções:</h2>
+            <p>1. O vídeo abaixo é apenas para teste (10 segundos)</p>
+            <p>2. Assista até o final ou clique em "Pular para o final"</p>
+            <p>3. Quando terminar, o overlay de próximo vídeo deve aparecer</p>
+            <p>4. Verifique o console do navegador (F12) para logs de debug</p>
+            <button class="test-btn" onclick="skipToEnd()">⏭️ Pular para o final</button>
+            <button class="test-btn" onclick="location.reload()">🔄 Recarregar Página</button>
+            <button class="test-btn" onclick="testOverlay()">🧪 Testar Overlay Manualmente</button>
+        </div>
+        
+        <div class="video-player">
+            <video id="videoPlayer" controls>
+                <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+            </video>
+        </div>
+        
+        <div class="info">
+            <h2>Status:</h2>
+            <p id="status">Aguardando...</p>
+            <h3>Console Logs:</h3>
+            <div id="logs" style="background: #000; padding: 10px; border-radius: 4px; font-family: monospace; font-size: 12px; max-height: 300px; overflow-y: auto;"></div>
+        </div>
+    </div>
+
+    <script src="js/custom-player.js"></script>
+    <script>
+        // Intercept console.log to show in page
+        const originalLog = console.log;
+        const logsDiv = document.getElementById('logs');
+        
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            const logEntry = document.createElement('div');
+            logEntry.textContent = args.join(' ');
+            logEntry.style.marginBottom = '5px';
+            logsDiv.appendChild(logEntry);
+            logsDiv.scrollTop = logsDiv.scrollHeight;
+        };
+        
+        const originalError = console.error;
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            const logEntry = document.createElement('div');
+            logEntry.textContent = '❌ ERROR: ' + args.join(' ');
+            logEntry.style.color = '#ff5555';
+            logEntry.style.marginBottom = '5px';
+            logsDiv.appendChild(logEntry);
+            logsDiv.scrollTop = logsDiv.scrollHeight;
+        };
+        
+        function skipToEnd() {
+            const video = document.getElementById('videoPlayer');
+            if (video) {
+                video.currentTime = video.duration - 1;
+                document.getElementById('status').textContent = '⏭️ Pulando para o final...';
+            }
+        }
+        
+        function testOverlay() {
+            console.log('🧪 Testing overlay manually...');
+            const overlay = document.getElementById('nextVideoOverlay');
+            if (overlay) {
+                overlay.style.display = 'flex';
+                document.getElementById('status').textContent = '✅ Overlay exibido!';
+                console.log('✅ Overlay found and displayed');
+            } else {
+                console.error('❌ Overlay element not found!');
+                document.getElementById('status').textContent = '❌ Overlay não encontrado!';
+            }
+        }
+        
+        // Monitor video events
+        const video = document.getElementById('videoPlayer');
+        if (video) {
+            video.addEventListener('ended', () => {
+                document.getElementById('status').textContent = '🎬 Vídeo terminou! Verificando overlay...';
+                console.log('📹 Video ended event fired');
+            });
+            
+            video.addEventListener('loadedmetadata', () => {
+                console.log('📹 Video loaded. Duration:', video.duration);
+            });
+        }
+        
+        console.log('✅ Test page loaded successfully');
+        console.log('📹 Video element:', video ? 'Found' : 'Not found');
+    </script>
+</body>
+</html>
