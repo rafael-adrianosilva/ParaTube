@@ -13,14 +13,11 @@ $query = "
         v.duration,
         v.created_at,
         v.thumbnail,
-        v.visibility,
-        v.user_id,
         u.username as channel,
         u.profile_image,
         v.filename
     FROM videos v
     JOIN users u ON v.user_id = u.id
-    WHERE v.visibility = 'public'
     ORDER BY v.created_at DESC
     LIMIT 50
 ";
@@ -41,14 +38,12 @@ while ($row = $result->fetch_assoc()) {
         'id' => $row['id'],
         'title' => $row['title'],
         'channel' => $row['channel'],
-        'user_id' => $row['user_id'],
         'profile_image' => $row['profile_image'] ? $row['profile_image'] : null,
         'views' => (int)$row['views'],
         'date' => timeAgo($row['created_at']),
         'created_at' => $row['created_at'],
         'duration' => formatDuration($row['duration']),
-        'thumbnail' => $thumbnail,
-        'visibility' => $row['visibility']
+        'thumbnail' => $thumbnail
     ];
 }
 

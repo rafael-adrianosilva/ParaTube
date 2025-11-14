@@ -12,6 +12,8 @@ let isSubscribed = false;
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('🎬 Channel page loaded, ID:', channelId, 'Type:', typeof channelId);
     console.log('🔗 Full URL:', window.location.href);
+    // Teste de elementos
+    console.log('Test DOM:', !!document.getElementById('channelName'), !!document.getElementById('channelAvatar'));
     
     // Close sidebar for better channel viewing
     const sidebar = document.getElementById('sidebar');
@@ -44,9 +46,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Load channel data
     await loadChannelInfo();
-    await loadChannelStats();
     await loadSubscriptionStatus();
     await loadAllVideos();
+    
+    // Load stats AFTER videos are loaded so we can use allVideos.length as fallback
+    await loadChannelStats();
     
     // Setup event listeners
     setupTabNavigation();
@@ -63,18 +67,18 @@ document.addEventListener('DOMContentLoaded', async () => {
 // Load channel information
 async function loadChannelInfo() {
     try {
+        console.log('🔎 Buscando canal pelo ID:', channelId);
         const response = await fetch('php/get-profile.php', {
             headers: {
                 'X-User-Id': channelId
             }
         });
-
+        console.log('🔎 Resposta fetch:', response);
         if (!response.ok) {
             throw new Error('Failed to load channel - HTTP ' + response.status);
         }
-
         const data = await response.json();
-        console.log('👤 Channel info:', data);
+        console.log('🔎 Dados do canal:', data);
         
         // Check if request was successful
         if (!data.success) {
@@ -196,21 +200,29 @@ async function loadChannelStats() {
 
         if (response.ok) {
             const data = await response.json();
-            console.log('📊 Channel stats:', data);
+            console.log('📊 Channel stats recebida:', data);
+            console.log('📊 data.success:', data.success);
+            console.log('📊 data.videoCount:', data.videoCount);
+            console.log('📊 data.subscribers:', data.subscribers);
+            console.log('📊 data.totalViews:', data.totalViews);
+            console.log('📊 allVideos.length (fallback):', allVideos.length);
 
             // Update subscriber count
             const subCount = formatNumber(data.subscribers || 0);
             document.getElementById('subscriberCount').textContent = `${subCount} inscritos`;
             document.getElementById('subscribersAbout').textContent = `${subCount} inscritos`;
 
-            // Update video count
-            const videoCount = data.videoCount || data.videos || 0;
+            // Update video count - videoCount from API or allVideos.length as fallback
+            const videoCount = data.videoCount || allVideos.length || 0;
+            console.log('📊 VideoCount FINAL usado:', videoCount);
             document.getElementById('videoCount').textContent = `${videoCount} vídeos`;
             document.getElementById('videosAbout').textContent = `${videoCount} vídeos`;
 
             // Update total views
-            const totalViews = data.totalViews || data.total_views || 0;
+            const totalViews = data.totalViews || 0;
             document.getElementById('totalViewsAbout').textContent = `${formatNumber(totalViews)} visualizações`;
+            
+            console.log('✅ Estatísticas atualizadas com sucesso!');
         }
     } catch (error) {
         console.error('Error loading stats:', error);

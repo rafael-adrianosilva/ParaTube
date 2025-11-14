@@ -347,6 +347,10 @@ function updateUserMenu(user) {
         <a href="my-channel.html">
             <i class="fas fa-user"></i> Seu canal
         </a>
+        <a href="#" id="achievementsMenuBtn" class="dropdown-item">
+            <i class="fas fa-trophy"></i> Conquistas
+            <span id="achievementMenuBadge" style="display: none; background: #ff0000; color: #fff; font-size: 10px; padding: 2px 6px; border-radius: 10px; margin-left: 8px;">0</span>
+        </a>
         <a href="profile.html">
             <i class="fas fa-cog"></i> Configurações
         </a>
@@ -361,7 +365,7 @@ function updateUserMenu(user) {
         <a href="#" class="dropdown-item">
             <i class="fas fa-dollar-sign"></i> Compras e assinaturas
         </a>
-        <a href="manage-videos.html" class="dropdown-item">
+        <a href="manage-stats.html" class="dropdown-item">
             <i class="fas fa-chart-line"></i> ParaTube Studio
         </a>
         <hr style="margin: 8px 0; border: none; border-top: 1px solid var(--border-color);">
@@ -371,7 +375,7 @@ function updateUserMenu(user) {
         <a href="#" class="dropdown-item">
             <i class="fas fa-language"></i> Idioma: Português
         </a>
-        <a href="#" class="dropdown-item">
+        <a href="manage-stats.html" class="dropdown-item">
             <i class="fas fa-shield-alt"></i> Seus dados no ParaTube
         </a>
         <a href="#" class="dropdown-item">
@@ -400,6 +404,13 @@ function updateUserMenu(user) {
             <i class="fas fa-${currentTheme === 'dark' ? 'sun' : 'moon'}"></i> 
             Aparência: ${currentTheme === 'dark' ? 'Escuro' : 'Claro'}
         `;
+    });
+    
+    // Add achievements handler
+    const achievementsMenuBtn = document.getElementById('achievementsMenuBtn');
+    achievementsMenuBtn?.addEventListener('click', (e) => {
+        e.preventDefault();
+        window.location.href = 'achievements.html';
     });
 }
 

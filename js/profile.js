@@ -268,10 +268,53 @@ function showProfileAlert(message, type) {
     }, 5000);
 }
 
+// Load achievements
+async function loadAchievements() {
+    try {
+        const response = await fetch('php/get-achievements.php');
+        const achievements = await response.json();
+        
+        const container = document.getElementById('achievementsList');
+        
+        if (achievements.length === 0) {
+            container.innerHTML = '<p class="no-achievements">Ainda sem conquistas. Continue criando conteúdo!</p>';
+            return;
+        }
+        
+        container.innerHTML = achievements.map(achievement => `
+            <div class="achievement-badge" style="border-color: ${achievement.badge_color};">
+                <div class="achievement-badge-icon" style="background: ${achievement.badge_color};">
+                    <i class="fas ${achievement.icon}"></i>
+                </div>
+                <div class="achievement-badge-info">
+                    <h4>${achievement.name}</h4>
+                    <p>${achievement.description}</p>
+                    <span class="achievement-date">${formatDate(achievement.unlocked_at)}</span>
+                </div>
+            </div>
+        `).join('');
+    } catch (error) {
+        console.error('Erro ao carregar conquistas:', error);
+    }
+}
+
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diff = Math.floor((now - date) / 1000);
+    
+    if (diff < 3600) return `há ${Math.floor(diff / 60)} minutos`;
+    if (diff < 86400) return `há ${Math.floor(diff / 3600)} horas`;
+    if (diff < 604800) return `há ${Math.floor(diff / 86400)} dias`;
+    return date.toLocaleDateString('pt-BR');
+}
+
 // Check if user is logged in
 const user = localStorage.getItem('user');
 if (!user) {
     window.location.href = 'login.html';
 } else {
     loadProfile();
+    loadAchievements();
 }
+

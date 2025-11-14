@@ -19,12 +19,16 @@ $stmt = $conn->prepare("
         c.likes,
         c.created_at,
         c.user_id,
+        c.parent_id,
+        c.is_pinned,
+        c.is_hearted,
+        c.edited_at,
         u.username as author,
         u.profile_image as author_avatar
     FROM comments c
     JOIN users u ON c.user_id = u.id
     WHERE c.video_id = ?
-    ORDER BY c.created_at DESC
+    ORDER BY c.is_pinned DESC, c.created_at DESC
 ");
 
 $stmt->bind_param("i", $videoId);
@@ -42,7 +46,11 @@ while ($row = $result->fetch_assoc()) {
         'text' => $row['comment'],
         'likes' => $row['likes'],
         'date' => timeAgo($row['created_at']),
-        'created_at' => $row['created_at'] // Retorna timestamp para cálculo no JS
+        'created_at' => $row['created_at'],
+        'parent_id' => $row['parent_id'],
+        'is_pinned' => (bool)$row['is_pinned'],
+        'is_hearted' => (bool)$row['is_hearted'],
+        'edited_at' => $row['edited_at']
     ];
 }
 

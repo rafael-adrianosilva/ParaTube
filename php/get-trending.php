@@ -25,20 +25,19 @@ while ($row = $result->fetch_assoc()) {
         'id' => $row['id'],
         'title' => $row['title'],
         'description' => $row['description'],
-        'channel' => $row['channel'],
-        'channelId' => $row['user_id'],
-        'profile_image' => $row['profile_image'] ? $row['profile_image'] : null,
+        'channel_name' => $row['channel'],
+        'user_id' => $row['user_id'],
+        'avatar' => $row['profile_image'] ? $row['profile_image'] : 'assets/default-avatar.png',
         'views' => (int)$row['views'],
         'likes' => $row['likes'],
         'dislikes' => $row['dislikes'],
-        'date' => $row['date_formatted'],
         'created_at' => $row['created_at'],
-        'thumbnail' => $row['thumbnail'] ?? 'https://via.placeholder.com/320x180/667eea/ffffff?text=' . urlencode(substr($row['title'], 0, 20)),
-        'duration' => gmdate("i:s", $row['duration'])
+        'thumbnail_url' => $row['thumbnail'] ?? 'https://via.placeholder.com/320x180/667eea/ffffff?text=' . urlencode(substr($row['title'], 0, 20)),
+        'duration' => gmdate("i:s", $row['duration'] ?? 0)
     ];
 }
 
-echo json_encode($videos);
+echo json_encode(['success' => true, 'videos' => $videos]);
 
 $stmt->close();
 $conn->close();

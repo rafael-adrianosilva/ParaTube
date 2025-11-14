@@ -1,0 +1,834 @@
+/* ========================================
+   ADVANCED FEATURES STYLES
+   ======================================== */
+
+/* 1. VIDEO QUALITY SELECTOR */
+.quality-btn {
+    position: relative;
+}
+
+.quality-text {
+    font-size: 11px;
+    margin-left: 4px;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+.quality-menu {
+    position: absolute;
+    bottom: 100%;
+    right: 0;
+    background: rgba(28, 28, 28, 0.95);
+    border-radius: 8px;
+    padding: 8px 0;
+    margin-bottom: 10px;
+    min-width: 120px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+}
+
+.quality-option {
+    display: block;
+    width: 100%;
+    padding: 10px 16px;
+    background: none;
+    border: none;
+    color: #fff;
+    text-align: left;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.2s;
+}
+
+.quality-option:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.quality-option.active {
+    background: rgba(255, 0, 0, 0.2);
+    color: #ff0000;
+    font-weight: bold;
+}
+
+.quality-option.active::before {
+    content: '✓ ';
+    margin-right: 8px;
+}
+
+/* 2. LOOP & A-B REPEAT BUTTONS */
+.loop-btn, .ab-repeat-btn {
+    transition: all 0.3s;
+}
+
+.loop-btn.active, .ab-repeat-btn.active {
+    color: #ff0000;
+    transform: scale(1.1);
+}
+
+.loop-btn.active i, .ab-repeat-btn.active i {
+    animation: rotate 1s linear infinite;
+}
+
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* 3. CONTEXT MENU */
+.video-context-menu {
+    position: fixed;
+    background: rgba(28, 28, 28, 0.98);
+    border-radius: 8px;
+    padding: 8px 0;
+    min-width: 240px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7);
+    z-index: 10000;
+    backdrop-filter: blur(10px);
+}
+
+.context-menu-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.2s;
+    font-size: 14px;
+}
+
+.context-menu-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.context-menu-item i {
+    width: 24px;
+    margin-right: 12px;
+    font-size: 16px;
+    color: #aaa;
+}
+
+.context-menu-divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.1);
+    margin: 8px 0;
+}
+
+/* 4. AUTOPLAY OVERLAY */
+.autoplay-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    backdrop-filter: blur(5px);
+}
+
+.autoplay-content {
+    text-align: center;
+    color: #fff;
+    max-width: 400px;
+    padding: 30px;
+}
+
+.autoplay-content h3 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+.next-video-preview {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 30px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    text-align: left;
+}
+
+.next-video-thumbnail {
+    flex-shrink: 0;
+    width: 120px;
+    height: 68px;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.next-video-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.next-video-info h4 {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 5px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.next-video-info p {
+    font-size: 12px;
+    color: #aaa;
+}
+
+.countdown-circle {
+    position: relative;
+    width: 60px;
+    height: 60px;
+    margin: 20px auto;
+}
+
+.countdown-circle svg {
+    transform: rotate(-90deg);
+}
+
+.countdown-progress {
+    transition: stroke-dashoffset 1s linear;
+}
+
+.countdown-number {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.btn-cancel-autoplay {
+    padding: 12px 30px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid #fff;
+    color: #fff;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.btn-cancel-autoplay:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
+}
+
+/* 5. AUTOPLAY TOGGLE BUTTON */
+.autoplay-btn {
+    opacity: 0.6;
+    transition: all 0.3s;
+}
+
+.autoplay-btn.active {
+    opacity: 1;
+    color: #ff0000;
+}
+
+.autoplay-btn.active::after {
+    content: 'AUTO';
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    font-size: 8px;
+    background: #ff0000;
+    padding: 1px 3px;
+    border-radius: 2px;
+    font-weight: bold;
+}
+
+/* 6. TIMELINE HEATMAP */
+.heatmap-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.heatmap-marker {
+    position: absolute;
+    bottom: 0;
+    width: 2px;
+    background: rgba(255, 255, 255, 0.6);
+    transition: opacity 0.3s;
+}
+
+.progress-bar:hover .heatmap-marker {
+    opacity: 1 !important;
+}
+
+/* 7. WATCH LATER BUTTON ACTIVE STATE */
+#saveBtn.active {
+    color: #ff0000;
+}
+
+#saveBtn.active i::before {
+    content: '\f00c'; /* fa-check */
+}
+
+/* 8. ACHIEVEMENTS BUTTON */
+.achievements-btn {
+    position: relative;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.achievements-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}
+
+.achievements-btn i {
+    font-size: 16px;
+}
+
+.achievement-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #ff0000;
+    color: #fff;
+    font-size: 10px;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 10px;
+    min-width: 18px;
+    text-align: center;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+/* 9. ACHIEVEMENTS MODAL */
+.achievements-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+}
+
+.achievements-modal-content {
+    background: var(--bg-secondary);
+    border-radius: 16px;
+    width: 90%;
+    max-width: 800px;
+    max-height: 80vh;
+    overflow-y: auto;
+    padding: 30px;
+}
+
+.achievements-modal h2 {
+    font-size: 28px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.achievements-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 20px;
+}
+
+.achievement-card {
+    background: var(--bg-primary);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    transition: all 0.3s;
+    border: 2px solid transparent;
+}
+
+.achievement-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+.achievement-card.unlocked {
+    border-color: var(--primary-color);
+    background: linear-gradient(135deg, rgba(255, 0, 0, 0.1) 0%, transparent 100%);
+}
+
+.achievement-card.locked {
+    opacity: 0.5;
+    filter: grayscale(100%);
+}
+
+.achievement-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+}
+
+.achievement-card.unlocked .achievement-icon {
+    animation: bounce 0.5s;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.achievement-name {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.achievement-description {
+    font-size: 12px;
+    color: #aaa;
+    margin-bottom: 10px;
+}
+
+.achievement-progress {
+    font-size: 11px;
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+/* 10. COMMENT ENHANCEMENTS */
+.comment-item {
+    position: relative;
+}
+
+.comment-item.pinned {
+    background: rgba(255, 255, 255, 0.05);
+    border-left: 3px solid var(--primary-color);
+    padding-left: 12px;
+}
+
+.comment-item.pinned::before {
+    content: '📌 FIXADO';
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 10px;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.comment-heart {
+    color: #ff0000;
+    margin-left: 10px;
+    animation: heartBeat 0.3s;
+}
+
+@keyframes heartBeat {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.3); }
+}
+
+.comment-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 8px;
+}
+
+.comment-action-btn {
+    background: none;
+    border: none;
+    color: #aaa;
+    cursor: pointer;
+    font-size: 12px;
+    padding: 5px 10px;
+    border-radius: 20px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.comment-action-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+.comment-action-btn.active {
+    color: var(--primary-color);
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .quality-menu {
+        right: auto;
+        left: 0;
+    }
+    
+    .achievements-modal-content {
+        width: 95%;
+        padding: 20px;
+    }
+    
+    .achievements-grid {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 15px;
+    }
+    
+    .next-video-preview {
+        flex-direction: column;
+    }
+    
+    .next-video-thumbnail {
+        width: 100%;
+        height: 180px;
+    }
+}
+
+/* DARK MODE ADJUSTMENTS */
+[data-theme="dark"] .quality-menu,
+[data-theme="dark"] .video-context-menu {
+    background: rgba(18, 18, 18, 0.98);
+}
+
+[data-theme="dark"] .achievement-card {
+    background: #1a1a1a;
+}
+
+[data-theme="dark"] .achievements-modal-content {
+    background: #0f0f0f;
+}
+
+/* ========================================
+   PLAYLIST MODAL
+   ======================================== */
+.playlist-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    animation: fadeIn 0.2s ease;
+}
+
+.playlist-modal-content {
+    background: #fff;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 450px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    animation: slideUp 0.3s ease;
+}
+
+.playlist-modal-header {
+    padding: 20px;
+    border-bottom: 1px solid #e5e5e5;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.playlist-modal-header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 500;
+}
+
+.close-modal-btn {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #606060;
+    padding: 4px 8px;
+    transition: color 0.2s;
+}
+
+.close-modal-btn:hover {
+    color: #000;
+}
+
+.playlist-list {
+    padding: 16px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.no-playlists {
+    text-align: center;
+    color: #606060;
+    padding: 40px 20px;
+    font-size: 14px;
+}
+
+.playlist-item {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.playlist-item:hover {
+    background: #f5f5f5;
+}
+
+.playlist-item input[type="checkbox"] {
+    margin-right: 12px;
+    cursor: pointer;
+    width: 18px;
+    height: 18px;
+}
+
+.playlist-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+}
+
+.playlist-info i {
+    color: #606060;
+}
+
+.playlist-count {
+    font-size: 12px;
+    color: #606060;
+}
+
+.playlist-modal-footer {
+    padding: 16px;
+    border-top: 1px solid #e5e5e5;
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+}
+
+.btn-create-playlist {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 18px;
+    background: #065fd4;
+    color: white;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.2s;
+}
+
+.btn-create-playlist:hover {
+    background: #0553b8;
+}
+
+.btn-primary {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    background: #065fd4;
+    color: white;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-primary:hover {
+    background: #0553b8;
+}
+
+.btn-secondary {
+    padding: 10px 20px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: white;
+    color: #606060;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+    background: #f5f5f5;
+    border-color: #999;
+}
+
+.create-playlist-form {
+    padding: 20px;
+}
+
+/* Dark theme for playlist modal */
+[data-theme="dark"] .playlist-modal-content {
+    background: #212121;
+}
+
+[data-theme="dark"] .playlist-modal-header {
+    border-color: #3a3a3a;
+}
+
+[data-theme="dark"] .playlist-modal-header h3,
+[data-theme="dark"] .close-modal-btn {
+    color: #fff;
+}
+
+[data-theme="dark"] .close-modal-btn:hover {
+    color: #ccc;
+}
+
+[data-theme="dark"] .playlist-item:hover {
+    background: #303030;
+}
+
+[data-theme="dark"] .playlist-modal-footer {
+    border-color: #3a3a3a;
+}
+
+[data-theme="dark"] .btn-secondary {
+    background: #303030;
+    border-color: #3a3a3a;
+    color: #fff;
+}
+
+[data-theme="dark"] .btn-secondary:hover {
+    background: #3a3a3a;
+}
+
+[data-theme="dark"] .create-playlist-form input,
+[data-theme="dark"] .create-playlist-form textarea {
+    background: #303030;
+    border-color: #3a3a3a;
+    color: #fff;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* ========================================
+   VIDEO QUALITY VISUAL EFFECTS
+   ======================================== */
+
+/* 144p - Very Low Quality - MUITO PIXELADO */
+video.quality-144p {
+    filter: blur(4px) contrast(1.5) brightness(0.95);
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+}
+
+/* 240p - Low Quality - PIXELADO */
+video.quality-240p {
+    filter: blur(2.5px) contrast(1.3) brightness(0.97);
+    image-rendering: pixelated;
+}
+
+/* 360p - Medium-Low Quality - BORRADO */
+video.quality-360p {
+    filter: blur(1.2px) contrast(1.15);
+}
+
+/* 480p - Medium Quality - LEVE BLUR */
+video.quality-480p {
+    filter: blur(0.3px) contrast(1.05);
+}
+
+/* 720p - High Quality - NÍTIDO */
+video.quality-720p {
+    filter: none;
+    image-rendering: auto;
+}
+
+/* 1080p - Full HD - NÍTIDO */
+video.quality-1080p {
+    filter: none;
+    image-rendering: auto;
+}
+
+/* Quality Notification Animation */
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOutRight {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+.quality-notification {
+    animation: slideInRight 0.3s ease-out;
+}
+
+/* Video container adjustments for quality changes */
+.video-player {
+    position: relative;
+    width: 100%;
+    background: #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.video-player video {
+    width: 100% !important;
+    height: auto !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto;
+    transition: filter 0.3s ease;
+    /* Remove qualquer transform que possa desalinhar */
+    transform: none !important;
+    position: relative;
+    left: 0 !important;
+    right: 0 !important;
+}

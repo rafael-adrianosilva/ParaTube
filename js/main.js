@@ -325,10 +325,16 @@ function displayVideos(videos) {
                     <span class="video-duration">${video.duration || '0:00'}</span>
                 </div>
                 <div class="video-details">
-                    <div class="video-info-wrapper">
-                        <h3 class="video-title">${video.title}</h3>
-                        <a href="channel.html?id=${video.user_id}" class="video-channel-name" onclick="event.stopPropagation()">${video.channel}</a>
-                        <p class="video-stats">${views} visualizações • ${date}</p>
+                    <div class="channel-avatar">
+                        ${video.profile_image ? 
+                            `<img src="${video.profile_image}" alt="${video.channel}">` :
+                            '<i class="fas fa-user-circle"></i>'
+                        }
+                    </div>
+                    <div class="video-meta">
+                        <h3>${video.title}</h3>
+                        <div class="channel-name">${video.channel}</div>
+                        <div class="video-stats">${views} visualizações • ${date}</div>
                     </div>
                 </div>
             </a>
@@ -435,3 +441,275 @@ window.addEventListener('storage', function(e) {
         loadSubscriptionsSidebar();
     }
 });
+
+// ===== ACHIEVEMENTS SYSTEM =====
+async function checkAchievements() {
+    try {
+        const response = await fetch('php/check-achievements.php');
+        const data = await response.json();
+        
+        if (data.unlocked && data.unlocked.length > 0) {
+            data.unlocked.forEach(achievement => {
+                showAchievementNotification(achievement);
+            });
+        }
+    } catch (error) {
+        console.error('Erro ao verificar conquistas:', error);
+    }
+}
+
+function showAchievementNotification(achievement) {
+    const notification = document.createElement('div');
+    notification.className = 'achievement-notification';
+    notification.innerHTML = `
+        <div class="achievement-icon" style="background: ${achievement.badge_color};">
+            <i class="fas ${achievement.icon}"></i>
+        </div>
+        <div class="achievement-info">
+            <div class="achievement-title">🎉 Conquista Desbloqueada!</div>
+            <div class="achievement-name">${achievement.name}</div>
+            <div class="achievement-description">${achievement.description}</div>
+        </div>
+        <button class="achievement-close">×</button>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Animate in
+    setTimeout(() => notification.classList.add('show'), 100);
+    
+    // Close button
+    notification.querySelector('.achievement-close').addEventListener('click', () => {
+        notification.classList.remove('show');
+        setTimeout(() => notification.remove(), 300);
+    });
+    
+    // Auto-remove after 8 seconds
+    setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => notification.remove(), 300);
+    }, 8000);
+}
+
+// Check achievements every 30 seconds if user is logged in
+if (localStorage.getItem('user')) {
+    checkAchievements(); // Check immediately
+    setInterval(checkAchievements, 30000);
+}
+
+// Add achievement notification CSS
+const achievementStyle = document.createElement('style');
+achievementStyle.textContent = `
+    .achievement-notification {
+        position: fixed;
+        top: 80px;
+        right: -400px;
+        width: 360px;
+        background: var(--bg-secondary);
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        z-index: 10001;
+        transition: right 0.3s ease-out;
+        border: 2px solid var(--accent-color);
+    }
+    
+    .achievement-notification.show {
+        right: 20px;
+    }
+    
+    .achievement-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        color: white;
+        flex-shrink: 0;
+    }
+    
+    .achievement-info {
+        flex: 1;
+    }
+    
+    .achievement-title {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--accent-color);
+        text-transform: uppercase;
+        margin-bottom: 4px;
+    }
+    
+    .achievement-name {
+        font-size: 16px;
+        font-weight: bold;
+        margin-bottom: 4px;
+    }
+    
+    .achievement-description {
+        font-size: 13px;
+        color: var(--text-secondary);
+    }
+    
+    .achievement-close {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        background: none;
+        border: none;
+        font-size: 24px;
+        color: var(--text-secondary);
+        cursor: pointer;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        transition: all 0.2s;
+    }
+    
+    .achievement-close:hover {
+        background: var(--bg-hover);
+        color: var(--text-primary);
+    }
+    
+    @media (max-width: 768px) {
+        .achievement-notification {
+            width: calc(100% - 40px);
+            right: -100%;
+        }
+        
+        .achievement-notification.show {
+            right: 20px;
+        }
+    }
+`;
+document.head.appendChild(achievementStyle);
+
+// ===== GLOBAL USER SESSION & AVATAR LOADER =====
+async function loadUserSession() {
+    try {
+        const response = await fetch('php/check-session.php');
+        const data = await response.json();
+        
+        if (data.logged_in) {
+            updateUserUI(data.user);
+            return data.user;
+        } else {
+            updateUserUILoggedOut();
+            return null;
+        }
+    } catch (error) {
+        console.error('Erro ao carregar sessão:', error);
+        updateUserUILoggedOut();
+        return null;
+    }
+}
+
+function updateUserUI(user) {
+    // Atualizar avatar no header
+    const userAvatar = document.getElementById('userAvatar');
+    if (userAvatar) {
+        if (user.avatar && user.avatar !== '') {
+            userAvatar.innerHTML = `<img src="${user.avatar}" alt="${user.username}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">`;
+        } else {
+            userAvatar.innerHTML = '<i class="fas fa-user-circle"></i>';
+        }
+    }
+    
+    // Atualizar menu dropdown
+    const dropdownMenu = document.getElementById('dropdownMenu');
+    if (dropdownMenu) {
+        // Mostrar links logados
+        document.getElementById('myChannelLink')?.style.setProperty('display', 'flex');
+        document.getElementById('profileLink')?.style.setProperty('display', 'flex');
+        document.getElementById('revenueLink')?.style.setProperty('display', 'flex');
+        document.getElementById('manageVideosLink')?.style.setProperty('display', 'flex');
+        document.getElementById('menuDivider')?.style.setProperty('display', 'block');
+        document.getElementById('logoutLink')?.style.setProperty('display', 'flex');
+        
+        // Esconder links de login/registro
+        const loginLink = document.querySelector('.login-link');
+        const registerLink = document.getElementById('registerLink');
+        if (loginLink) loginLink.style.display = 'none';
+        if (registerLink) registerLink.style.display = 'none';
+    }
+    
+    // Atualizar sidebar
+    document.getElementById('myChannelSidebarLink')?.style.setProperty('display', 'flex');
+    document.getElementById('manageVideosSidebarLink')?.style.setProperty('display', 'flex');
+    document.getElementById('revenueSidebarLink')?.style.setProperty('display', 'flex');
+    
+    // Mostrar botão de upload
+    const uploadBtn = document.getElementById('uploadBtn');
+    if (uploadBtn) uploadBtn.style.display = 'block';
+}
+
+function updateUserUILoggedOut() {
+    const userAvatar = document.getElementById('userAvatar');
+    if (userAvatar) {
+        userAvatar.innerHTML = '<i class="fas fa-user-circle"></i>';
+    }
+    
+    // Esconder links logados
+    document.getElementById('myChannelLink')?.style.setProperty('display', 'none');
+    document.getElementById('profileLink')?.style.setProperty('display', 'none');
+    document.getElementById('revenueLink')?.style.setProperty('display', 'none');
+    document.getElementById('manageVideosLink')?.style.setProperty('display', 'none');
+    document.getElementById('menuDivider')?.style.setProperty('display', 'none');
+    document.getElementById('logoutLink')?.style.setProperty('display', 'none');
+    
+    // Mostrar links de login/registro
+    const loginLink = document.querySelector('.login-link');
+    const registerLink = document.getElementById('registerLink');
+    if (loginLink) loginLink.style.display = 'flex';
+    if (registerLink) registerLink.style.display = 'flex';
+    
+    // Esconder sidebar links logados
+    document.getElementById('myChannelSidebarLink')?.style.setProperty('display', 'none');
+    document.getElementById('manageVideosSidebarLink')?.style.setProperty('display', 'none');
+    document.getElementById('revenueSidebarLink')?.style.setProperty('display', 'none');
+    
+    // Esconder botão de upload
+    const uploadBtn = document.getElementById('uploadBtn');
+    if (uploadBtn) uploadBtn.style.display = 'none';
+}
+
+// Carregar sessão ao iniciar página
+document.addEventListener('DOMContentLoaded', () => {
+    loadUserSession();
+    
+    // Setup logout
+    const logoutLink = document.getElementById('logoutLink');
+    if (logoutLink) {
+        logoutLink.addEventListener('click', async (e) => {
+            e.preventDefault();
+            try {
+                await fetch('php/logout.php');
+                window.location.href = 'index.html';
+            } catch (error) {
+                console.error('Erro ao fazer logout:', error);
+            }
+        });
+    }
+});
+
+function updateVideoCountMenu(count) {
+    const myChannelLink = document.getElementById('myChannelLink');
+    if (myChannelLink) {
+        let txt = myChannelLink.textContent.replace(/\(\d+\)/, '').trim();
+        myChannelLink.textContent = `${txt} (${count})`;
+    }
+    const myChannelSidebarLink = document.getElementById('myChannelSidebarLink');
+    if (myChannelSidebarLink) {
+        let txt = myChannelSidebarLink.textContent.replace(/\(\d+\)/, '').trim();
+        myChannelSidebarLink.textContent = `${txt} (${count})`;
+    }
+}
+

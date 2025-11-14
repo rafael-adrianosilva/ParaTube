@@ -3,62 +3,81 @@ let currentUser = null;
 let allVideos = [];
 let allShorts = [];
 
+// Check authentication
 function checkChannelAuth() {
-    const user = localStorage.getItem('user');
-    if (!user) {
-        console.error('❌ Nenhum usuário no localStorage');
+    const userStr = localStorage.getItem('user');
+    if (!userStr) {
+        console.warn('⚠️ Usuário não autenticado, redirecionando...');
         window.location.href = 'login.html';
-        return null;
+        return false;
     }
+    
     try {
-        currentUser = JSON.parse(user);
-        console.log('✅ Usuário carregado do localStorage:', currentUser);
-        console.log('   - ID:', currentUser.id);
-        console.log('   - Username:', currentUser.username);
-        console.log('   - Email:', currentUser.email);
-        return currentUser;
+        currentUser = JSON.parse(userStr);
+        console.log('✅ Usuário autenticado:', currentUser.username, '(ID:', currentUser.id + ')');
+        return true;
     } catch (error) {
         console.error('❌ Erro ao parsear usuário:', error);
         window.location.href = 'login.html';
-        return null;
+        return false;
     }
 }
 
+// Load channel information
 async function loadChannelInfo() {
-    if (!currentUser) return;
+    if (!currentUser) {
+        console.error('❌ currentUser não existe em loadChannelInfo');
+        return;
+    }
+    
+    console.log('� Carregando informações do canal para user_id:', currentUser.id);
+    
     try {
-        console.log('📊 Carregando info do canal para user ID:', currentUser.id);
         const response = await fetch('php/get-profile.php', {
             headers: { 'X-User-Id': currentUser.id.toString() }
         });
-        const data = await response.json();
-        console.log('✅ Resposta get-profile:', data);
         
-        if (data.success) {
-            // Use data directly, not data.profile (both are available for compatibility)
-            updateChannelHeader(data);
-            updateAboutTab(data);
-        } else {
-            console.error('❌ Erro ao carregar perfil:', data.message);
+        console.log('📡 get-profile.php status:', response.status);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
         }
         
-        // Load channel customization (banner, links)
-        await loadChannelCustomization();
+        const data = await response.json();
+        console.log('✅ Perfil carregado:', data);
+        
+        if (data.success) {
+            updateChannelHeader(data);
+            updateAboutTab(data);
+        }
     } catch (error) {
-        console.error('❌ Erro ao carregar info do canal:', error);
+        console.error('❌ Erro ao carregar canal:', error);
+        // Set defaults
+        const nameEl = document.getElementById('channelName');
+        const handleEl = document.getElementById('channelHandle');
+        if (nameEl) nameEl.textContent = currentUser.username || 'Meu Canal';
+        if (handleEl) handleEl.textContent = `@${currentUser.username || 'usuario'}`;
     }
 }
 
+// Load channel customization
 async function loadChannelCustomization() {
     if (!currentUser) return;
+    
+    console.log('🎨 Carregando customização do canal...');
+    
     try {
         const response = await fetch('php/get-channel-customization.php', {
             headers: { 'X-User-Id': currentUser.id.toString() }
         });
         
-        if (response.ok) {
-            const data = await response.json();
-            console.log('🎨 Customização carregada:', data);
+        if (!response.ok) {
+            console.warn('⚠️ Erro HTTP customização:', response.status);
+            return;
+        }
+        
+        const data = await response.json();
+        console.log('🎨 Customização recebida:', data);
             
             // Set banner - check if data has the banner property
             const banner = document.querySelector('.channel-banner');
@@ -167,15 +186,11 @@ async function loadChannelStats() {
         });
         const stats = await response.json();
         console.log('✅ Estatísticas carregadas:', stats);
-        console.log('📊 stats.videoCount:', stats.videoCount);
-        console.log('📊 allVideos.length (fallback):', allVideos.length);
         
         const subCount = stats.subscribers || 0;
         document.getElementById('subscriberCount').textContent = subCount === 1 ? '1 inscrito' : `${subCount} inscritos`;
         
-        // Use videoCount from stats or allVideos.length as fallback
-        const vidCount = stats.videoCount || allVideos.length || 0;
-        console.log('📊 VideoCount FINAL usado:', vidCount);
+        const vidCount = stats.videoCount || stats.videos || 0;
         document.getElementById('videoCount').textContent = vidCount === 1 ? '1 vídeo' : `${vidCount} vídeos`;
         
         // Update about tab stats
@@ -186,7 +201,7 @@ async function loadChannelStats() {
             document.getElementById('videosAbout').textContent = vidCount === 1 ? '1 vídeo' : `${vidCount} vídeos`;
         }
         if (document.getElementById('totalViewsAbout')) {
-            const totalViews = stats.totalViews || 0;
+            const totalViews = stats.totalViews || stats.total_views || 0;
             document.getElementById('totalViewsAbout').textContent = formatViews(totalViews) + ' visualizações';
         }
     } catch (error) {
@@ -206,98 +221,49 @@ async function loadAllVideos() {
     console.log('🎬 =================================');
     
     try {
-        const url = 'php/get-user-videos.php';
-        const headers = { 'X-User-Id': currentUser.id.toString() };
-        
-        console.log('📤 Fazendo fetch para:', url);
-        console.log('📤 Com headers:', headers);
-        
-        const response = await fetch(url, { 
-            method: 'GET',
-            headers: headers 
+        const response = await fetch('php/get-user-videos.php', {
+            headers: { 'X-User-Id': currentUser.id.toString() }
         });
         
-        console.log('📥 Response recebida!');
         console.log('📡 Response status:', response.status);
-        console.log('📡 Response statusText:', response.statusText);
         console.log('📡 Response OK:', response.ok);
-        
-        // Get response as text first to see what we got
-        const responseText = await response.text();
-        console.log('📄 Response RAW (primeiros 300 chars):', responseText.substring(0, 300));
         
         if (!response.ok) {
             console.error('❌ Erro HTTP:', response.status);
-            console.error('❌ Body:', responseText);
             allVideos = [];
             allShorts = [];
             displayAllVideosGrid([]);
             displayAllShortsGrid([]);
-            displayShortsSection([]);
-            displayVideosHorizontal([]);
             return;
         }
         
-        // Try to parse JSON
-        let videos;
-        try {
-            videos = JSON.parse(responseText);
-        } catch (parseError) {
-            console.error('❌ Erro ao fazer parse do JSON!');
-            console.error('❌ Parse error:', parseError.message);
-            console.error('❌ Response text completo:', responseText);
-            allVideos = [];
-            allShorts = [];
-            displayAllVideosGrid([]);
-            displayAllShortsGrid([]);
-            displayShortsSection([]);
-            displayVideosHorizontal([]);
-            return;
-        }
-        
-        console.log('✅ JSON parseado com sucesso!');
-        console.log('📦 Tipo:', typeof videos);
-        console.log('📦 É Array?:', Array.isArray(videos));
-        console.log('📦 Conteúdo:', videos);
+        const videos = await response.json();
+        console.log('✅ Vídeos carregados:', videos);
+        console.log('📊 Total de vídeos:', videos.length);
+        console.log('📦 Tipo:', Array.isArray(videos) ? 'Array' : typeof videos);
         
         // Check if it's an error response
         if (videos.success === false) {
-            console.error('❌ API retornou erro:', videos.message);
-            if (videos.debug) console.error('❌ Debug info:', videos.debug);
-            allVideos = [];
-            allShorts = [];
-        } else if (!Array.isArray(videos)) {
-            console.error('❌ Response não é um array!', videos);
+            console.error('❌ Erro do servidor:', videos.message);
             allVideos = [];
             allShorts = [];
         } else {
-            allVideos = videos;
-            console.log('✅ allVideos atualizado com', allVideos.length, 'vídeos');
+            allVideos = Array.isArray(videos) ? videos : [];
         }
         
         // Separate shorts and regular videos
-        allShorts = allVideos.filter(v => {
-            const dur = parseDuration(v.duration);
-            return dur > 0 && dur < 60;
-        });
+        allShorts = allVideos.filter(v => parseDuration(v.duration) < 60);
+        const regularVideos = allVideos.filter(v => parseDuration(v.duration) >= 60);
         
-        const regularVideos = allVideos.filter(v => {
-            const dur = parseDuration(v.duration);
-            return dur >= 60;
-        });
-        
-        console.log('🎞️ Vídeos regulares (>= 60s):', regularVideos.length);
-        console.log('📱 Shorts (< 60s):', allShorts.length);
+        console.log('🎞️ Vídeos regulares:', regularVideos.length);
+        console.log('📱 Shorts:', allShorts.length);
         
         // List all video titles for debugging
         if (allVideos.length > 0) {
-            console.log('📋 Lista completa de vídeos:');
+            console.log('📋 Títulos dos vídeos:');
             allVideos.forEach((v, i) => {
-                const dur = parseDuration(v.duration);
-                console.log(`  ${i + 1}. "${v.title}" (ID: ${v.id}, Duração: ${v.duration} = ${dur}s, Tipo: ${dur < 60 ? 'SHORT' : 'VIDEO'})`);
+                console.log(`  ${i + 1}. "${v.title}" (ID: ${v.id}, Duração: ${v.duration})`);
             });
-        } else {
-            console.warn('⚠️ NENHUM VÍDEO ENCONTRADO!');
         }
         
         // Display videos in all sections
@@ -305,43 +271,29 @@ async function loadAllVideos() {
         console.log('🎨 RENDERIZANDO VÍDEOS');
         console.log('🎨 =================================');
         
-        console.log('1️⃣ Renderizando Shorts Section (tab Início)');
+        console.log('📺 Chamando displayShortsSection com', allShorts.slice(0, 6).length, 'shorts');
         displayShortsSection(allShorts.slice(0, 6));
         
-        console.log('2️⃣ Renderizando Videos Horizontal (tab Início)');
+        console.log('📺 Chamando displayVideosHorizontal com', regularVideos.slice(0, 10).length, 'vídeos');
         displayVideosHorizontal(regularVideos.slice(0, 10));
         
-        console.log('3️⃣ Renderizando All Videos Grid (tab Vídeos)');
+        console.log('📺 Chamando displayAllVideosGrid com', allVideos.length, 'vídeos');
         displayAllVideosGrid(allVideos);
         
-        console.log('4️⃣ Renderizando All Shorts Grid (tab Shorts)');
+        console.log('📺 Chamando displayAllShortsGrid com', allShorts.length, 'shorts');
         displayAllShortsGrid(allShorts);
         
-        if (typeof updateVideoCountMenu === 'function') updateVideoCountMenu(allVideos.length);
-        
         console.log('✅ =================================');
-        console.log('✅ RENDERIZAÇÃO COMPLETA!');
-        console.log('✅ Total renderizado:');
-        console.log('✅   - Início (shorts):', Math.min(allShorts.length, 6));
-        console.log('✅   - Início (vídeos):', Math.min(regularVideos.length, 10));
-        console.log('✅   - Tab Vídeos:', regularVideos.length);
-        console.log('✅   - Tab Shorts:', allShorts.length);
+        console.log('✅ RENDERIZAÇÃO COMPLETA');
         console.log('✅ =================================');
         
     } catch (error) {
-        console.error('❌ =================================');
-        console.error('❌ ERRO FATAL em loadAllVideos()!');
-        console.error('❌ =================================');
-        console.error('❌ Error:', error);
-        console.error('❌ Message:', error.message);
-        console.error('❌ Stack:', error.stack);
-        console.error('❌ =================================');
+        console.error('❌ Erro ao carregar vídeos:', error);
+        console.error('❌ Stack trace:', error.stack);
         allVideos = [];
         allShorts = [];
         displayAllVideosGrid([]);
         displayAllShortsGrid([]);
-        displayShortsSection([]);
-        displayVideosHorizontal([]);
     }
 }
 
@@ -354,26 +306,14 @@ function parseDuration(duration) {
 }
 
 function displayShortsSection(shorts) {
-    console.log('📱 displayShortsSection() chamada com', shorts.length, 'shorts');
-    
     const shortsSection = document.getElementById('shortsSection');
     const shortsGrid = document.getElementById('shortsGrid');
-    
-    if (!shortsSection || !shortsGrid) {
-        console.error('❌ Elementos não encontrados! shortsSection:', !!shortsSection, 'shortsGrid:', !!shortsGrid);
-        return;
-    }
-    
     if (shorts.length === 0) {
-        console.log('ℹ️ Sem shorts - ocultando seção');
         shortsSection.style.display = 'none';
         return;
     }
-    
     shortsSection.style.display = 'block';
-    const html = shorts.map((short, i) => {
-        console.log(`  📱 Short ${i + 1}: "${short.title}"`);
-        return `
+    shortsGrid.innerHTML = shorts.map(short => `
         <div class="short-card-yt" onclick="window.location.href='watch.html?v=${short.id}'">
             <div class="short-thumbnail">
                 <img src="${short.thumbnail || 'assets/default-thumbnail.jpg'}" alt="${short.title}">
@@ -382,34 +322,20 @@ function displayShortsSection(shorts) {
             <div class="short-title">${short.title}</div>
             <div class="short-views">${formatViews(short.views)} visualizações</div>
         </div>
-    `;
-    }).join('');
-    
-    shortsGrid.innerHTML = html;
-    console.log('✅ Shorts renderizados:', shorts.length, '| shortsGrid.children:', shortsGrid.children.length);
+    `).join('');
 }
 
 function displayVideosHorizontal(videos) {
-    console.log('🎞️ displayVideosHorizontal() chamada com', videos.length, 'vídeos');
-    
     const videosSection = document.getElementById('videosSection');
     const container = document.getElementById('videosScroll');
     
-    if (!videosSection || !container) {
-        console.error('❌ Elementos não encontrados! videosSection:', !!videosSection, 'container:', !!container);
-        return;
-    }
-    
     if (videos.length === 0) {
-        console.log('ℹ️ Sem vídeos - ocultando seção');
         videosSection.style.display = 'none';
         return;
     }
     
     videosSection.style.display = 'block';
-    const html = videos.map((video, i) => {
-        console.log(`  🎞️ Vídeo ${i + 1}: "${video.title}"`);
-        return `
+    container.innerHTML = videos.map(video => `
         <div class="video-card-horizontal" onclick="window.location.href='watch.html?v=${video.id}'">
             <div class="video-thumbnail-container">
                 <img src="${video.thumbnail || 'assets/default-thumbnail.jpg'}" alt="${video.title}">
@@ -420,21 +346,17 @@ function displayVideosHorizontal(videos) {
                 <div class="video-meta-horizontal">${formatViews(video.views)} visualizações • ${formatDate(video.created_at)}</div>
             </div>
         </div>
-    `;
-    }).join('');
-    
-    container.innerHTML = html;
-    console.log('✅ Vídeos horizontais renderizados:', videos.length, '| container.children:', container.children.length);
+    `).join('');
 }
 
 async function displayAllVideosGrid(videos) {
-    console.log('🎯 ===== displayAllVideosGrid CHAMADA =====');
+    console.log('🎯 displayAllVideosGrid CHAMADA');
     console.log('🎯 Parâmetro videos:', videos);
     console.log('🎯 Tipo:', Array.isArray(videos) ? 'Array' : typeof videos);
     console.log('🎯 Length:', videos ? videos.length : 'N/A');
     
     const container = document.getElementById('allVideosGrid');
-    console.log('🎯 Container allVideosGrid:', container ? 'ENCONTRADO ✓' : 'NÃO ENCONTRADO ✗');
+    console.log('🎯 Container allVideosGrid:', container ? 'ENCONTRADO' : 'NÃO ENCONTRADO');
     
     if (!container) {
         console.error('❌ Container allVideosGrid não encontrado no DOM!');
@@ -442,27 +364,15 @@ async function displayAllVideosGrid(videos) {
         return;
     }
     
-    // Filter only videos >= 60s
-    const videosToShow = videos && videos.length > 0 
-        ? videos.filter(v => parseDuration(v.duration) >= 60)
-        : [];
-    
-    console.log('🎯 Vídeos filtrados (>=60s):', videosToShow.length, 'de', videos ? videos.length : 0);
-    
-    if (videosToShow.length === 0) {
-        console.log('⚠️ Nenhum vídeo (>=60s) para exibir');
-        container.innerHTML = `
-            <div class="no-content">
-                <i class="fas fa-video"></i>
-                <h3>Nenhum vídeo publicado</h3>
-                <p>Publique vídeos longos (60+ segundos) para aparecerem aqui!</p>
-            </div>`;
+    if (!videos || videos.length === 0) {
+        console.log('⚠️ Nenhum vídeo para exibir - mostrando mensagem de "sem conteúdo"');
+        container.innerHTML = '<div class="no-content"><i class="fas fa-video"></i><h3>Nenhum vídeo publicado</h3><p>Publique seu primeiro vídeo para aparecer aqui!</p></div>';
         return;
     }
     
-    console.log('🎨 Gerando HTML para', videosToShow.length, 'vídeos...');
+    console.log('🎨 Gerando HTML para', videos.length, 'vídeos...');
     
-    // Load video progress (optional, may fail)
+    // Load video progress
     let progressData = {};
     try {
         const response = await fetch('php/get-all-progress.php', {
@@ -470,15 +380,14 @@ async function displayAllVideosGrid(videos) {
         });
         if (response.ok) {
             progressData = await response.json();
-            console.log('📊 Progresso carregado:', Object.keys(progressData).length, 'vídeos');
+            console.log('📊 Progresso carregado:', Object.keys(progressData).length, 'vídeos com progresso');
         }
     } catch (error) {
-        console.log('ℹ️ Progresso não disponível (ok, não é essencial)');
+        console.log('ℹ️ Progresso não disponível:', error.message);
     }
     
-    const html = videosToShow.map((video, index) => {
-        console.log(`  📹 ${index + 1}/${videosToShow.length}: "${video.title}" (${video.duration})`);
-        
+    const html = videos.map((video, index) => {
+        console.log(`  📹 ${index + 1}. ${video.title}`);
         const progress = progressData[video.id];
         const progressBar = progress && progress.percentage > 0 ? `
             <div class="video-progress-bar">
@@ -489,7 +398,7 @@ async function displayAllVideosGrid(videos) {
         return `
         <a href="watch.html?v=${video.id}" class="video-card">
             <div class="video-thumbnail">
-                <img src="${video.thumbnail || 'assets/default-thumbnail.jpg'}" alt="${video.title}" loading="lazy" onerror="this.src='assets/default-thumbnail.jpg'">
+                <img src="${video.thumbnail || 'https://via.placeholder.com/320x180'}" alt="${video.title}" loading="lazy">
                 <div class="video-duration">${video.duration || '0:00'}</div>
                 ${progressBar}
             </div>
@@ -501,42 +410,22 @@ async function displayAllVideosGrid(videos) {
     `;
     }).join('');
     
-    console.log('🎨 HTML gerado! Tamanho:', html.length, 'caracteres');
-    console.log('🎨 Primeiros 200 chars:', html.substring(0, 200));
+    console.log('🎨 HTML gerado, tamanho:', html.length, 'caracteres');
     
     container.innerHTML = html;
     
-    console.log('✅ container.innerHTML DEFINIDO!');
+    console.log('✅ container.innerHTML definido');
     console.log('✅ container.children.length:', container.children.length);
-    console.log('✅ Container display:', window.getComputedStyle(container).display);
-    console.log('✅ Container visibility:', window.getComputedStyle(container).visibility);
-    console.log('✅ ===== Grid renderizado! =====');
+    console.log('✅ Grid renderizado com sucesso!');
 }
 
 function displayAllShortsGrid(shorts) {
-    console.log('📱 displayAllShortsGrid() chamada com', shorts.length, 'shorts');
-    
     const container = document.getElementById('allShortsGrid');
-    
-    if (!container) {
-        console.error('❌ Container allShortsGrid não encontrado!');
-        return;
-    }
-    
     if (shorts.length === 0) {
-        console.log('ℹ️ Sem shorts - mostrando mensagem');
-        container.innerHTML = `
-            <div class="no-content">
-                <i class="fab fa-youtube" style="color: #ff0000;"></i>
-                <h3>Nenhum Short publicado</h3>
-                <p>Publique vídeos curtos (menos de 60 segundos) para aparecerem aqui!</p>
-            </div>`;
+        container.innerHTML = '<div class="no-content"><i class="fab fa-youtube" style="color: #ff0000;"></i><h3>Nenhum Short publicado</h3><p>Publique vídeos curtos (menos de 60 segundos) para aparecerem aqui!</p></div>';
         return;
     }
-    
-    const html = shorts.map((short, i) => {
-        console.log(`  📱 Short ${i + 1}: "${short.title}"`);
-        return `
+    container.innerHTML = shorts.map(short => `
         <div class="short-card-yt" onclick="window.location.href='watch.html?v=${short.id}'">
             <div class="short-thumbnail">
                 <img src="${short.thumbnail || 'assets/default-thumbnail.jpg'}" alt="${short.title}">
@@ -545,11 +434,7 @@ function displayAllShortsGrid(shorts) {
             <div class="short-title">${short.title}</div>
             <div class="short-views">${formatViews(short.views)} visualizações</div>
         </div>
-    `;
-    }).join('');
-    
-    container.innerHTML = html;
-    console.log('✅ Shorts grid renderizado:', shorts.length, '| container.children:', container.children.length);
+    `).join('');
 }
 
 function setupTabNavigation() {
@@ -708,76 +593,32 @@ function setupActionButtons() {
 }
 
 // Initialize everything when DOM is ready
-document.addEventListener('DOMContentLoaded', async function() {
-    console.log('🚀 ========================================');
-    console.log('🚀 INICIALIZANDO MY CHANNEL');
-    console.log('🚀 ========================================');
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 Inicializando página My Channel...');
     
     currentUser = checkChannelAuth();
-    if (!currentUser) {
+    if (currentUser) {
+        console.log('✅ Usuário autenticado:', currentUser);
+        
+        // Setup UI
+        setupMenuAndTheme();
+        setupUploadModal();
+        setupActionButtons();
+        setupTabNavigation();
+        setupFilterButtons();
+        
+        // Load data
+        loadChannelInfo();
+        loadChannelStats();
+        loadAllVideos();
+        loadSubscriptions();
+        
+        // Extra: Force load banner after a delay to ensure DOM is ready
+        setTimeout(() => {
+            console.log('🔄 Re-carregando customização após 500ms...');
+            loadChannelCustomization();
+        }, 500);
+    } else {
         console.error('❌ Usuário não autenticado, redirecionando...');
-        return;
     }
-    
-    console.log('✅ Usuário autenticado:', currentUser.username, '(ID:', currentUser.id + ')');
-    
-    // Setup UI first (sync operations)
-    console.log('1️⃣ Configurando UI...');
-    setupMenuAndTheme();
-    setupUploadModal();
-    setupActionButtons();
-    setupTabNavigation();
-    setupFilterButtons();
-    console.log('✅ UI configurada!');
-    
-    // Load data (async operations)
-    console.log('2️⃣ Carregando dados do canal...');
-    try {
-        await loadChannelInfo();
-        console.log('✅ Info do canal carregada!');
-    } catch (error) {
-        console.error('❌ Erro ao carregar info:', error);
-    }
-    
-    // CRITICAL: Load videos BEFORE stats so allVideos.length is available as fallback
-    console.log('3️⃣ Carregando vídeos (CRÍTICO)...');
-    try {
-        await loadAllVideos();
-        console.log('✅ Vídeos carregados e renderizados!');
-    } catch (error) {
-        console.error('❌ ERRO CRÍTICO ao carregar vídeos:', error);
-        console.error('Stack:', error.stack);
-    }
-    
-    // Load stats AFTER videos so allVideos.length can be used as fallback
-    console.log('4️⃣ Carregando estatísticas...');
-    try {
-        await loadChannelStats();
-        console.log('✅ Estatísticas carregadas!');
-    } catch (error) {
-        console.error('❌ Erro ao carregar stats:', error);
-    }
-    
-    try {
-        await loadSubscriptions();
-        console.log('✅ Inscrições carregadas!');
-    } catch (error) {
-        console.error('❌ Erro ao carregar inscrições:', error);
-    }
-    
-    // Extra: Force load banner after a delay
-    setTimeout(async () => {
-        console.log('🔄 Re-carregando customização após 500ms...');
-        try {
-            await loadChannelCustomization();
-        } catch (error) {
-            console.error('❌ Erro ao recarregar customização:', error);
-        }
-    }, 500);
-    
-    console.log('🎉 ========================================');
-    console.log('🎉 INICIALIZAÇÃO COMPLETA!');
-    console.log('🎉 Total de vídeos:', allVideos.length);
-    console.log('🎉 Total de shorts:', allShorts.length);
-    console.log('🎉 ========================================');
 });
